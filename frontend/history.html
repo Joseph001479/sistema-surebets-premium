@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico - SurePro</title>
+    
+    <!-- Fontes e Ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --darker: #111827;
+            --light: #f8fafc;
+            --gradient-premium: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-premium {
+            background: var(--gradient-premium);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #9ca3af;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+        
+        .back-btn:hover {
+            color: var(--primary);
+            background: rgba(255,255,255,0.05);
+        }
+        
+        /* Filtros */
+        .filters-bar {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-label {
+            margin-bottom: 0.5rem;
+            color: #9ca3af;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .filter-select {
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        /* Overview Cards */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .overview-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .overview-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .overview-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+        
+        .icon-primary { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
+        .icon-success { background: rgba(16, 185, 129, 0.2); color: var(--secondary); }
+        .icon-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .icon-info { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        
+        .overview-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .overview-label {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+        
+        .profit-positive {
+            color: var(--secondary);
+        }
+        
+        .profit-negative {
+            color: var(--danger);
+        }
+        
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .analytics-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .metric-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-label {
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 2rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid var(--darker);
+        }
+        
+        .timeline-date {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-content {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        
+        /* Detailed Table */
+        .detailed-table-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+        
+        .detailed-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+        
+        .detailed-table th {
+            text-align: left;
+            padding: 1rem;
+            color: #9ca3af;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+        }
+        
+        .detailed-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+        
+        .detailed-table tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .sport-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+        }
+        
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .status-completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--secondary);
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+        
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+        
+        /* Export Section */
+        .export-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        
+        .export-options {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Dashboard
+        </a>
+        
+        <div class="header">
+            <h1><i class="fas fa-chart-bar"></i> Histórico Completo</h1>
+            <div class="header-actions">
+                <button class="btn-premium" onclick="exportFullHistory()">
+                    <i class="fas fa-file-export"></i> Exportar Tudo
+                </button>
+                <button class="btn-secondary" onclick="refreshHistory()">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="filters-bar">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Período</label>
+                    <select class="filter-select" id="filterPeriod" onchange="applyFilters()">
+                        <option value="week">Última Semana</option>
+                        <option value="month" selected>Último Mês</option>
+                        <option value="quarter">Último Trimestre</option>
+                        <option value="year">Último Ano</option>
+                        <option value="all">Todo Período</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Esporte</label>
+                    <select class="filter-select" id="filterSport" onchange="applyFilters()">
+                        <option value="">Todos</option>
+                        <option value="Futebol">Futebol</option>
+                        <option value="Tênis">Tênis</option>
+                        <option value="Basquete">Basquete</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+                        <option value="">Todos</option>
+                        <option value="completed">Concluídas</option>
+                        <option value="pending">Pendentes</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Ordenar por</label>
+                    <select class="filter-select" id="filterSort" onchange="applyFilters()">
+                        <option value="date_desc">Data (Mais Recente)</option>
+                        <option value="date_asc">Data (Mais Antigo)</option>
+                        <option value="profit_desc">Lucro (Maior)</option>
+                        <option value="profit_asc">Lucro (Menor)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Overview Cards -->
+        <div class="overview-grid">
+            <div class="overview-card">
+                <div class="overview-icon icon-primary">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="overview-value" id="totalOperations">347</div>
+                <div class="overview-label">Operações Totais</div>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-icon icon-success">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="overview-value profit-positive" id="totalProfit">R$ 12.847,50</div>
+                <div class="overview-label">Lucro Total</div>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-icon icon-warning">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="overview-value profit-positive" id="avgROI">4.27%</div>
+                <div class="overview-label">ROI Médio</div>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-icon icon-info">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="overview-value profit-positive" id="successRate">94.8%</div>
+                <div class="overview-label">Taxa de Sucesso</div>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Evolução de Lucros</h3>
+                    <select class="filter-select" style="width: auto; padding: 0.5rem 1rem;" onchange="updateChartType(this.value)">
+                        <option value="daily">Diário</option>
+                        <option value="weekly" selected>Semanal</option>
+                        <option value="monthly">Mensal</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Distribuição por Esporte</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="sportDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytics -->
+        <div class="analytics-grid">
+            <div class="analytics-card">
+                <h3 style="margin-bottom: 1.5rem;">Performance por Esporte</h3>
+                <div class="performance-metrics" id="sportPerformance">
+                    <!-- Performance será preenchida via JavaScript -->
+                </div>
+            </div>
+            
+            <div class="analytics-card">
+                <h3 style="margin-bottom: 1.5rem;">Marcos Importantes</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">25 Dez 2024</div>
+                        <div class="timeline-content">
+                            <strong>Recorde Diário</strong><br>
+                            Lucro de R$ 684,25 em um único dia
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">23 Dez 2024</div>
+                        <div class="timeline-content">
+                            <strong>Melhor Operação</strong><br>
+                            ROI de 8.2% em Flamengo vs Vasco
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">15 Dez 2024</div>
+                        <div class="timeline-content">
+                            <strong>100ª Operação</strong><br>
+                            Meta atingida com sucesso
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">01 Dez 2024</div>
+                        <div class="timeline-content">
+                            <strong>Início do Mês</strong><br>
+                            Bankroll inicial: R$ 10.000,00
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabela Detalhada -->
+        <div class="detailed-table-container">
+            <div class="chart-header">
+                <h3 class="chart-title">Histórico Detalhado de Operações</h3>
+                <button class="btn-secondary" onclick="toggleDetailedView()">
+                    <i class="fas fa-table"></i> Alternar Visualização
+                </button>
+            </div>
+            
+            <table class="detailed-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Evento</th>
+                        <th>Esporte</th>
+                        <th>Stake Total</th>
+                        <th>Lucro</th>
+                        <th>ROI</th>
+                        <th>Status</th>
+                        <th>Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <!-- Histórico será preenchido via JavaScript -->
+                </tbody>
+            </table>
+            
+            <!-- Paginação -->
+            <div class="pagination">
+                <button class="pagination-btn" id="prevPage" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </button>
+                <span class="page-info" id="pageInfo">Página 1 de 1</span>
+                <button class="pagination-btn" id="nextPage" onclick="changePage(1)">
+                    Próxima <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Export Section -->
+        <div class="export-section">
+            <h3 style="margin-bottom: 1rem;">Exportar Dados</h3>
+            <p style="color: #9ca3af; margin-bottom: 1.5rem;">Baixe seu histórico completo para análise externa</p>
+            <div class="export-options">
+                <button class="btn-secondary" onclick="exportCSV()">
+                    <i class="fas fa-file-csv"></i> CSV
+                </button>
+                <button class="btn-secondary" onclick="exportExcel()">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button class="btn-secondary" onclick="exportPDF()">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+                <button class="btn-secondary" onclick="generateReport()">
+                    <i class="fas fa-chart-pie"></i> Relatório
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let profitChart, sportDistributionChart;
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let allHistory = [];
+        
+        // Carregar histórico
+        async function loadHistory() {
+            try {
+                const period = document.getElementById('filterPeriod').value;
+                const response = await fetch(`/api/history?period=${period}`);
+                const data = await response.json();
+                updateHistoryUI(data);
+                initializeCharts(data);
+                loadDetailedHistory(data);
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+                // Dados de exemplo para demonstração
+                loadSampleData();
+            }
+        }
+        
+        function loadSampleData() {
+            const sampleData = {
+                period: 'month',
+                summary: {
+                    totalOperations: 347,
+                    totalStaked: 285000,
+                    totalProfit: 12847.50,
+                    avgROI: 4.27,
+                    successRate: 94.8
+                },
+                daily: [
+                    { date: '2024-12-25', operations: 15, profit: 684.25, roi: 4.52 },
+                    { date: '2024-12-24', operations: 12, profit: 523.80, roi: 4.31 },
+                    { date: '2024-12-23', operations: 18, profit: 742.15, roi: 4.68 },
+                    { date: '2024-12-22', operations: 14, profit: 598.40, roi: 4.25 },
+                    { date: '2024-12-21', operations: 16, profit: 612.75, roi: 4.15 },
+                    { date: '2024-12-20', operations: 13, profit: 551.30, roi: 4.12 },
+                    { date: '2024-12-19', operations: 11, profit: 478.90, roi: 4.08 }
+                ],
+                sports: [
+                    { sport: 'Futebol', operations: 156, profit: 6842.50, roi: 4.38 },
+                    { sport: 'Tênis', operations: 98, profit: 3520.75, roi: 4.15 },
+                    { sport: 'Basquete', operations: 67, profit: 1847.25, roi: 4.52 },
+                    { sport: 'Outros', operations: 26, profit: 637.00, roi: 3.89 }
+                ],
+                analytics: {
+                    bestDay: { date: '2024-12-23', profit: 742.15 },
+                    worstDay: { date: '2024-12-19', profit: -45.80 },
+                    longestStreak: 28,
+                    bestSport: 'Futebol'
+                }
+            };
+            
+            updateHistoryUI(sampleData);
+            initializeCharts(sampleData);
+            loadSampleDetailedHistory();
+        }
+        
+        function updateHistoryUI(data) {
+            document.getElementById('totalOperations').textContent = data.summary.totalOperations.toLocaleString();
+            document.getElementById('totalProfit').textContent = `R$ ${data.summary.totalProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+            document.getElementById('avgROI').textContent = `${data.summary.avgROI}%`;
+            document.getElementById('successRate').textContent = `${data.summary.successRate}%`;
+            
+            // Atualizar performance por esporte
+            const sportPerformance = document.getElementById('sportPerformance');
+            sportPerformance.innerHTML = data.sports.map(sport => `
+                <div class="metric-item">
+                    <div class="metric-value profit-positive">${sport.roi}%</div>
+                    <div class="metric-label">${sport.sport}</div>
+                    <div style="font-size: 0.7rem; color: #9ca3af; margin-top: 0.25rem;">
+                        ${sport.operations} ops
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function initializeCharts(data) {
+            // Gráfico de Lucros
+            const profitCtx = document.getElementById('profitChart').getContext('2d');
+            if (profitChart) profitChart.destroy();
+            
+            profitChart = new Chart(profitCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.daily.map(item => new Date(item.date).toLocaleDateString('pt-BR', { weekday: 'short' })),
+                    datasets: [{
+                        label: 'Lucro Diário (R$)',
+                        data: data.daily.map(item => item.profit),
+                        backgroundColor: data.daily.map(item => item.profit > 0 ? '#10b981' : '#ef4444'),
+                        borderColor: data.daily.map(item => item.profit > 0 ? '#10b981' : '#ef4444'),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)'
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                                callback: function(value) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR');
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)'
+                            },
+                            ticks: {
+                                color: '#9ca3af'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de Distribuição por Esporte
+            const distributionCtx = document.getElementById('sportDistributionChart').getContext('2d');
+            if (sportDistributionChart) sportDistributionChart.destroy();
+            
+            sportDistributionChart = new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.sports.map(item => item.sport),
+                    datasets: [{
+                        data: data.sports.map(item => item.operations),
+                        backgroundColor: [
+                            '#6366f1',
+                            '#10b981',
+                            '#f59e0b',
+                            '#6b7280'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#9ca3af',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function loadSampleDetailedHistory() {
+            const sampleOperations = [
+                {
+                    id: 1,
+                    event: 'Flamengo vs Vasco',
+                    sport: 'Futebol',
+                    totalStake: 1000,
+                    profit: 47.62,
+                    roi: 4.76,
+                    status: 'completed',
+                    timestamp: new Date('2024-12-25T15:30:00'),
+                    details: 'Match Winner - Casa A: R$ 487,80 @2.10, Casa B: R$ 512,20 @2.00'
+                },
+                {
+                    id: 2,
+                    event: 'Lakers vs Warriors',
+                    sport: 'Basquete',
+                    totalStake: 800,
+                    profit: 24.96,
+                    roi: 3.12,
+                    status: 'completed',
+                    timestamp: new Date('2024-12-25T14:15:00'),
+                    details: 'Moneyline - Casa A: R$ 410,26 @1.95, Casa B: R$ 389,74 @2.05'
+                },
+                {
+                    id: 3,
+                    event: 'Nadal vs Djokovic',
+                    sport: 'Tênis',
+                    totalStake: 1200,
+                    profit: 29.40,
+                    roi: 2.45,
+                    status: 'completed',
+                    timestamp: new Date('2024-12-25T13:45:00'),
+                    details: 'Set Winner - Casa A: R$ 615,38 @1.85, Casa B: R$ 584,62 @2.15'
+                },
+                {
+                    id: 4,
+                    event: 'Real Madrid vs Barcelona',
+                    sport: 'Futebol',
+                    totalStake: 1500,
+                    profit: 68.25,
+                    roi: 4.55,
+                    status: 'completed',
+                    timestamp: new Date('2024-12-24T16:20:00'),
+                    details: 'Match Winner - Casa A: R$ 735,00 @2.15, Casa B: R$ 765,00 @2.05'
+                }
+            ];
+            
+            allHistory = sampleOperations;
+            displayHistory();
+            updatePagination();
+        }
+        
+        function loadDetailedHistory(data) {
+            // Em produção, isso carregaria o histórico detalhado da API
+            loadSampleDetailedHistory();
+        }
+        
+        function displayHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            const filteredHistory = filterHistory(allHistory);
+            
+            // Paginação
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedHistory = filteredHistory.slice(startIndex, endIndex);
+            
+            tbody.innerHTML = paginatedHistory.map(operation => `
+                <tr>
+                    <td>${formatDateTime(operation.timestamp)}</td>
+                    <td>
+                        <strong>${operation.event}</strong>
+                        <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 0.25rem;">
+                            ${operation.details.split(' - ')[0]}
+                        </div>
+                    </td>
+                    <td><span class="sport-badge">${operation.sport}</span></td>
+                    <td><strong>R$ ${operation.totalStake.toFixed(2)}</strong></td>
+                    <td class="${operation.profit > 0 ? 'profit-positive' : 'profit-negative'}">
+                        <strong>R$ ${operation.profit.toFixed(2)}</strong>
+                    </td>
+                    <td class="${operation.roi > 0 ? 'profit-positive' : 'profit-negative'}">
+                        <strong>${operation.roi}%</strong>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${operation.status}">
+                            ${getStatusText(operation.status)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" 
+                                onclick="showOperationDetails(${operation.id})">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function filterHistory(history) {
+            const sportFilter = document.getElementById('filterSport').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const sortFilter = document.getElementById('filterSort').value;
+            
+            let filtered = history;
+            
+            // Filtro por esporte
+            if (sportFilter) {
+                filtered = filtered.filter(op => op.sport === sportFilter);
+            }
+            
+            // Filtro por status
+            if (statusFilter) {
+                filtered = filtered.filter(op => op.status === statusFilter);
+            }
+            
+            // Ordenação
+            switch (sortFilter) {
+                case 'date_desc':
+                    filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    break;
+                case 'date_asc':
+                    filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    break;
+                case 'profit_desc':
+                    filtered.sort((a, b) => b.profit - a.profit);
+                    break;
+                case 'profit_asc':
+                    filtered.sort((a, b) => a.profit - b.profit);
+                    break;
+            }
+            
+            return filtered;
+        }
+        
+        function applyFilters() {
+            currentPage = 1;
+            loadHistory();
+        }
+        
+        function changePage(direction) {
+            const totalPages = Math.ceil(filterHistory(allHistory).length / itemsPerPage);
+            const newPage = currentPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                displayHistory();
+                updatePagination();
+            }
+        }
+        
+        function updatePagination() {
+            const totalOperations = filterHistory(allHistory).length;
+            const totalPages = Math.ceil(totalOperations / itemsPerPage);
+            
+            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'completed': 'Concluída',
+                'pending': 'Pendente'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR') + '<br>' + date.toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+        
+        function updateChartType(type) {
+            alert(`Tipo de gráfico alterado para: ${type}`);
+            // Em produção, isso recarregaria os dados do tipo selecionado
+        }
+        
+        function toggleDetailedView() {
+            alert('Alternando visualização...');
+            // Em produção, isso alternaria entre visualização resumida e detalhada
+        }
+        
+        function showOperationDetails(operationId) {
+            const operation = allHistory.find(op => op.id === operationId);
+            if (operation) {
+                alert(`Detalhes da Operação:\n\nEvento: ${operation.event}\nEsporte: ${operation.sport}\nStake: R$ ${operation.totalStake.toFixed(2)}\nLucro: R$ ${operation.profit.toFixed(2)}\nROI: ${operation.roi}%\n\n${operation.details}`);
+            }
+        }
+        
+        // Funções de Exportação
+        function exportFullHistory() {
+            alert('Exportando histórico completo...');
+        }
+        
+        function exportCSV() {
+            alert('Exportando como CSV...');
+        }
+        
+        function exportExcel() {
+            alert('Exportando como Excel...');
+        }
+        
+        function exportPDF() {
+            alert('Gerando PDF...');
+        }
+        
+        function generateReport() {
+            alert('Gerando relatório detalhado...');
+        }
+        
+        function refreshHistory() {
+            loadHistory();
+        }
+        
+        // Carregar histórico ao iniciar
+        document.addEventListener('DOMContentLoaded', loadHistory);
+    </script>
+</body>
+</html>
