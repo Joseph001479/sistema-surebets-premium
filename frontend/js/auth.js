@@ -1,5 +1,5 @@
 const API_URL = window.location.hostname.includes('github.io') 
-    ? 'https://seu-surebet-backend.herokuapp.com/api'
+    ? 'https://sistema-surebets-premium-ba6dc287994f.herokuapp.com/api'
     : 'http://localhost:3000/api';
 
 // Verificar se já está logado
@@ -69,4 +69,5 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
     } catch (error) {
         alert('Erro de conexão: ' + error.message);
     }
+
 });
