@@ -1,5 +1,5 @@
 const API_URL = window.location.hostname.includes('github.io') 
-    ? 'https://seu-surebet-backend.herokuapp.com/api'
+    ? 'https://sistema-surebets-premium-ba6dc287994f.herokuapp.com/api'
     : 'http://localhost:3000/api';
 // Inicialização do Dashboard
 document.addEventListener('DOMContentLoaded', function() {
@@ -177,4 +177,5 @@ function logout() {
     localStorage.removeItem('surebet_token');
     localStorage.removeItem('user_data');
     window.location.href = 'index.html';
+
 }
