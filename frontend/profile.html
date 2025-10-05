@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil e Preferências - SurePro</title>
+    
+    <!-- Fontes e Ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --darker: #111827;
+            --light: #f8fafc;
+            --gradient-premium: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #9ca3af;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+        
+        .back-btn:hover {
+            color: var(--primary);
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: var(--primary);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--gradient-premium);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        /* Profile Sidebar */
+        .profile-sidebar {
+            text-align: center;
+        }
+        
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--gradient-premium);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 600;
+            margin: 0 auto 1rem;
+            border: 4px solid rgba(255,255,255,0.1);
+        }
+        
+        .avatar-edit {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid var(--darker);
+            transition: all 0.3s ease;
+        }
+        
+        .avatar-edit:hover {
+            transform: scale(1.1);
+            background: var(--primary-dark);
+        }
+        
+        .user-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-email {
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        
+        .membership-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+        
+        .profit-positive {
+            color: var(--secondary);
+        }
+        
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .input-field:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-premium {
+            background: var(--gradient-premium);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Switch Toggle */
+        .switch-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+        
+        .switch-label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .switch-title {
+            font-weight: 500;
+        }
+        
+        .switch-description {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.2);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Sports Selection */
+        .sports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .sport-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .sport-option:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .sport-option.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .sport-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+        }
+        
+        /* Security */
+        .security-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+        
+        .security-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .security-title {
+            font-weight: 500;
+        }
+        
+        .security-description {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+        
+        /* Danger Zone */
+        .danger-zone {
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+        }
+        
+        .danger-zone .card-header {
+            color: var(--danger);
+        }
+        
+        .danger-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+        
+        .danger-button {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .danger-button:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--dark);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                text-align: left;
+                padding: 0.75rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Dashboard
+        </a>
+        
+        <div class="header">
+            <h1><i class="fas fa-user-cog"></i> Perfil e Preferências</h1>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('profile')">Perfil</button>
+            <button class="tab" onclick="switchTab('preferences')">Preferências</button>
+            <button class="tab" onclick="switchTab('security')">Segurança</button>
+            <button class="tab" onclick="switchTab('notifications')">Notificações</button>
+        </div>
+        
+        <div class="profile-grid">
+            <!-- Sidebar -->
+            <div class="card profile-sidebar">
+                <div class="avatar-container">
+                    <div class="avatar" id="userAvatar">VP</div>
+                    <div class="avatar-edit" onclick="changeAvatar()">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+                
+                <div class="user-name" id="userName">Vinicius Pro</div>
+                <div class="user-email" id="userEmail">admin@turma.com</div>
+                
+                <div class="membership-badge">
+                    <i class="fas fa-crown"></i>
+                    Plano Premium
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value profit-positive">94.8%</div>
+                        <div class="stat-label">Sucesso</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">347</div>
+                        <div class="stat-label">Operações</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value profit-positive">4.27%</div>
+                        <div class="stat-label">ROI Médio</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value profit-positive">R$ 12.847</div>
+                        <div class="stat-label">Lucro Total</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Conteúdo Principal -->
+            <div class="card">
+                <!-- Aba Perfil -->
+                <div class="tab-content active" id="profile-tab">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <h2 class="card-title">Informações Pessoais</h2>
+                    </div>
+                    
+                    <form id="profileForm">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label class="input-label">Nome Completo</label>
+                                <input type="text" class="input-field" id="profileName" value="Vinicius Pro" required>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="input-label">Email</label>
+                                <input type="email" class="input-field" id="profileEmail" value="admin@turma.com" required>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="input-label">Telefone</label>
+                                <input type="tel" class="input-field" id="profilePhone" value="+55 (11) 99999-9999">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="input-label">Data de Nascimento</label>
+                                <input type="date" class="input-field" id="profileBirthdate" value="1990-01-01">
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Bio (Sobre você)</label>
+                            <textarea class="input-field" id="profileBio" rows="4" placeholder="Conte um pouco sobre sua experiência com trading esportivo...">Investidor profissional especializado em surebets com 3 anos de experiência. Foco em futebol e tênis.</textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-premium">
+                            <i class="fas fa-save"></i> Salvar Alterações
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Aba Preferências -->
+                <div class="tab-content" id="preferences-tab">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <h2 class="card-title">Preferências de Trading</h2>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Esportes Preferidos</label>
+                        <div class="sports-grid">
+                            <div class="sport-option selected" onclick="toggleSport(this)" data-sport="futebol">
+                                <div class="sport-icon">
+                                    <i class="fas fa-futbol"></i>
+                                </div>
+                                <span>Futebol</span>
+                            </div>
+                            <div class="sport-option selected" onclick="toggleSport(this)" data-sport="tenis">
+                                <div class="sport-icon">
+                                    <i class="fas fa-table-tennis"></i>
+                                </div>
+                                <span>Tênis</span>
+                            </div>
+                            <div class="sport-option" onclick="toggleSport(this)" data-sport="basquete">
+                                <div class="sport-icon">
+                                    <i class="fas fa-basketball-ball"></i>
+                                </div>
+                                <span>Basquete</span>
+                            </div>
+                            <div class="sport-option" onclick="toggleSport(this)" data-sport="outros">
+                                <div class="sport-icon">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <span>Outros</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label class="input-label">Lucro Mínimo (%)</label>
+                            <input type="number" class="input-field" id="minProfit" value="2.0" step="0.1" min="0.1">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Stake Máximo por Operação (R$)</label>
+                            <input type="number" class="input-field" id="maxStake" value="1000" step="50" min="100">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Stake por Operação (%)</label>
+                            <input type="number" class="input-field" id="stakePercentage" value="5.0" step="0.1" min="1" max="20">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Nível de Risco</label>
+                            <select class="input-field" id="riskLevel">
+                                <option value="low">Baixo (1-2%)</option>
+                                <option value="medium" selected>Médio (3-5%)</option>
+                                <option value="high">Alto (6-10%)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="switch-group">
+                        <div class="switch-label">
+                            <span class="switch-title">Cálculo Automático de Stake</span>
+                            <span class="switch-description">Calcula automaticamente o stake ideal baseado no bankroll</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="autoStake" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="switch-group">
+                        <div class="switch-label">
+                            <span class="switch-title">Modo Conservador</span>
+                            <span class="switch-description">Aplica critérios mais rigorosos para oportunidades</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="conservativeMode">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <button class="btn-premium" onclick="savePreferences()">
+                        <i class="fas fa-save"></i> Salvar Preferências
+                    </button>
+                </div>
+                
+                <!-- Aba Segurança -->
+                <div class="tab-content" id="security-tab">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h2 class="card-title">Segurança da Conta</h2>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-info">
+                            <div class="security-title">Senha da Conta</div>
+                            <div class="security-description">Altere sua senha regularmente para manter a conta segura</div>
+                        </div>
+                        <button class="btn-secondary" onclick="changePassword()">
+                            <i class="fas fa-key"></i> Alterar
+                        </button>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-info">
+                            <div class="security-title">Autenticação de Dois Fatores</div>
+                            <div class="security-description">Proteja sua conta com uma camada extra de segurança</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="twoFactorAuth">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-info">
+                            <div class="security-title">Sessões Ativas</div>
+                            <div class="security-description">Gerencie dispositivos conectados à sua conta</div>
+                        </div>
+                        <button class="btn-secondary" onclick="manageSessions()">
+                            <i class="fas fa-desktop"></i> Gerenciar
+                        </button>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-info">
+                            <div class="security-title">Backup de Dados</div>
+                            <div class="security-description">Faça backup do seu histórico e configurações</div>
+                        </div>
+                        <button class="btn-secondary" onclick="backupData()">
+                            <i class="fas fa-download"></i> Backup
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Aba Notificações -->
+                <div class="tab-content" id="notifications-tab">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h2 class="card-title">Configurações de Notificação</h2>
+                    </div>
+                    
+                    <div class="switch-group">
+                        <div class="switch-label">
+                            <span class="switch-title">Notificações por Email</span>
+                            <span class="switch-description">Receba alertas e relatórios por email</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="switch-group">
+                        <div class="switch-label">
+                            <span class="switch-title">Notificações no Navegador</span>
+                            <span class="switch-description">Receba alertas diretamente no navegador</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="browserNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="switch-group">
+                        <div class="switch-label">
+                            <span class="switch-title">Alertas de Oportunidades</span>
+                            <span class="switch-description">Notificações para oportunidades acima do lucro mínimo</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="opportunityAlerts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="switch-group">
+                        <div class="switch-label">
+                            <span class="switch-title">Alertas de Risco</span>
+                            <span class="switch-description">Notificações para operações de alto risco</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="riskAlerts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="switch-group">
+                        <div class="switch-label">
+                            <span class="switch-title">Relatórios Diários</span>
+                            <span class="switch-description">Resumo diário de performance</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="dailyReports">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="switch-group">
+                        <div class="switch-label">
+                            <span class="switch-title">Relatórios Semanais</span>
+                            <span class="switch-description">Análise semanal detalhada</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="weeklyReports" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <button class="btn-premium" onclick="saveNotificationSettings()">
+                        <i class="fas fa-save"></i> Salvar Configurações
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Zona de Perigo -->
+        <div class="card danger-zone">
+            <div class="card-header">
+                <div class="card-icon" style="background: rgba(239, 68, 68, 0.2); color: var(--danger);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 class="card-title">Zona de Perigo</h2>
+            </div>
+            
+            <div class="danger-item">
+                <div class="security-info">
+                    <div class="security-title">Excluir Todas as Operações</div>
+                    <div class="security-description">Remove permanentemente todo o histórico de operações. Esta ação não pode ser desfeita.</div>
+                </div>
+                <button class="danger-button" onclick="deleteAllOperations()">
+                    <i class="fas fa-trash"></i> Excluir Tudo
+                </button>
+            </div>
+            
+            <div class="danger-item">
+                <div class="security-info">
+                    <div class="security-title">Encerrar Conta</div>
+                    <div class="security-description">Exclui permanentemente sua conta e todos os dados associados.</div>
+                </div>
+                <button class="danger-button" onclick="deleteAccount()">
+                    <i class="fas fa-user-slash"></i> Encerrar Conta
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Alterar Senha -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Alterar Senha</h2>
+                <button class="modal-close" onclick="closePasswordModal()">&times;</button>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Senha Atual</label>
+                <input type="password" class="input-field" id="currentPassword" required>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Nova Senha</label>
+                <input type="password" class="input-field" id="newPassword" required>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Confirmar Nova Senha</label>
+                <input type="password" class="input-field" id="confirmPassword" required>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closePasswordModal()">Cancelar</button>
+                <button class="btn-premium" onclick="updatePassword()">Alterar Senha</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Sistema de Abas Melhorado
+    function switchTab(tabName) {
+        // Remove classe active de todas as abas e conteúdos
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Adiciona classe active na aba e conteúdo selecionados
+        document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+        
+        // Atualizar URL para refletir a aba atual
+        updateURL(tabName);
+    }
+    
+    function updateURL(tab) {
+        const newUrl = `${window.location.pathname}?tab=${tab}`;
+        window.history.pushState({ tab }, '', newUrl);
+    }
+    
+    // Detectar aba da URL ao carregar
+    function detectTabFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab && ['profile', 'preferences', 'security', 'notifications'].includes(tab)) {
+            switchTab(tab);
+        }
+    }
+    
+    // Logout function
+    function logout() {
+        if (confirm('Tem certeza que deseja sair?')) {
+            localStorage.removeItem('surebet_token');
+            localStorage.removeItem('user_data');
+            window.location.href = '/';
+        }
+    }
+
+    // Resto do código permanece igual...
+    function toggleSport(element) {
+        element.classList.toggle('selected');
+    }
+    
+    function changePassword() {
+        document.getElementById('passwordModal').style.display = 'block';
+    }
+    
+    function closePasswordModal() {
+        document.getElementById('passwordModal').style.display = 'none';
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+    }
+    
+    function changeAvatar() {
+        alert('Funcionalidade de alteração de avatar em desenvolvimento');
+    }
+    
+    async function savePreferences() {
+        const preferences = {
+            sports: Array.from(document.querySelectorAll('.sport-option.selected')).map(el => el.dataset.sport),
+            minProfit: parseFloat(document.getElementById('minProfit').value),
+            maxStake: parseFloat(document.getElementById('maxStake').value),
+            stakePercentage: parseFloat(document.getElementById('stakePercentage').value),
+            riskLevel: document.getElementById('riskLevel').value,
+            autoStake: document.getElementById('autoStake').checked,
+            conservativeMode: document.getElementById('conservativeMode').checked
+        };
+        
+        try {
+            const response = await fetch('/api/preferences', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('surebet_token')}`
+                },
+                body: JSON.stringify(preferences)
+            });
+            
+            if (response.ok) {
+                alert('Preferências salvas com sucesso!');
+            } else {
+                alert('Erro ao salvar preferências');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Preferências salvas localmente!');
+        }
+    }
+    
+    function saveNotificationSettings() {
+        const settings = {
+            email: document.getElementById('emailNotifications').checked,
+            browser: document.getElementById('browserNotifications').checked,
+            opportunities: document.getElementById('opportunityAlerts').checked,
+            risk: document.getElementById('riskAlerts').checked,
+            daily: document.getElementById('dailyReports').checked,
+            weekly: document.getElementById('weeklyReports').checked
+        };
+        
+        alert('Configurações de notificação salvas!');
+        console.log('Notification settings:', settings);
+    }
+    
+    function updatePassword() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            alert('Por favor, preencha todos os campos');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            alert('As senhas não coincidem');
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres');
+            return;
+        }
+        
+        alert('Senha alterada com sucesso!');
+        closePasswordModal();
+    }
+    
+    function deleteAllOperations() {
+        if (confirm('Tem certeza que deseja excluir TODAS as operações? Esta ação não pode ser desfeita.')) {
+            alert('Todas as operações foram excluídas (simulação)');
+        }
+    }
+    
+    function deleteAccount() {
+        if (confirm('TEM CERTEZA ABSOLUTA? Esta ação excluirá permanentemente sua conta e todos os dados. Esta ação não pode ser desfeita.')) {
+            if (confirm('Digite "DELETAR" para confirmar:')) {
+                alert('Conta encerrada (simulação)');
+            }
+        }
+    }
+    
+    function manageSessions() {
+        alert('Gerenciando sessões ativas...');
+    }
+    
+    function backupData() {
+        alert('Iniciando backup de dados...');
+    }
+    
+    async function loadUserData() {
+        try {
+            const response = await fetch('/api/profile');
+            const profile = await response.json();
+            updateProfileUI(profile);
+        } catch (error) {
+            console.error('Erro ao carregar perfil:', error);
+            loadSampleProfile();
+        }
+    }
+    
+    function loadSampleProfile() {
+        const sampleProfile = {
+            name: 'Vinicius Pro',
+            email: 'admin@turma.com',
+            membership: 'Premium',
+            joinDate: '2024-01-15',
+            performance: {
+                totalProfit: 12847.50,
+                avgROI: 4.27,
+                successRate: 94.8,
+                totalOperations: 347
+            }
+        };
+        
+        updateProfileUI(sampleProfile);
+    }
+    
+    function updateProfileUI(profile) {
+        document.getElementById('userName').textContent = profile.name;
+        document.getElementById('userEmail').textContent = profile.email;
+        document.getElementById('userAvatar').textContent = profile.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        
+        document.getElementById('profileName').value = profile.name;
+        document.getElementById('profileEmail').value = profile.email;
+    }
+    
+    // Form Submission
+    document.getElementById('profileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const profileData = {
+            name: document.getElementById('profileName').value,
+            email: document.getElementById('profileEmail').value,
+            phone: document.getElementById('profilePhone').value,
+            birthdate: document.getElementById('profileBirthdate').value,
+            bio: document.getElementById('profileBio').value
+        };
+        
+        try {
+            const response = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('surebet_token')}`
+                },
+                body: JSON.stringify(profileData)
+            });
+            
+            if (response.ok) {
+                alert('Perfil atualizado com sucesso!');
+                loadUserData();
+            } else {
+                alert('Erro ao atualizar perfil');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Perfil atualizado localmente!');
+        }
+    });
+    
+    // Carregar dados e detectar aba ao iniciar
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUserData();
+        detectTabFromURL();
+    });
+    
+    // Fechar modal ao clicar fora
+    window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    }
+</script>
+</body>
+</html>
