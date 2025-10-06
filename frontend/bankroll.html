@@ -467,7 +467,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="/dashboard" class="back-btn">
+        <a href="dashboard.html" class="back-btn">
             <i class="fas fa-arrow-left"></i>
             Voltar ao Dashboard
         </a>
@@ -712,341 +712,348 @@
         </div>
     </div>
 
-    <script>
-        let bankrollChart, allocationChart;
-        
-        // Carregar dados do bankroll
-        async function loadBankrollData() {
-            try {
-                const response = await fetch('/api/bankroll');
-                const data = await response.json();
-                updateBankrollUI(data);
-                initializeCharts(data);
-            } catch (error) {
-                console.error('Erro ao carregar dados do bankroll:', error);
-                // Dados de exemplo para demonstração
-                loadSampleData();
+   <script>
+    // ✅ URL DA API CORRIGIDA
+    const API_URL = 'https://sistema-surebets-premium-ba6dc287994f.herokuapp.com/api';
+    
+    let bankrollChart, allocationChart;
+    
+    // Carregar dados do bankroll
+    async function loadBankrollData() {
+        try {
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/bankroll');
+            const data = await response.json();
+            updateBankrollUI(data);
+            initializeCharts(data);
+        } catch (error) {
+            console.error('Erro ao carregar dados do bankroll:', error);
+            // Dados de exemplo para demonstração
+            loadSampleData();
+        }
+    }
+    
+    function loadSampleData() {
+        const sampleData = {
+            current: 12847.50,
+            initial: 10000.00,
+            profit: 2847.50,
+            growth: 28.48,
+            daily: [
+                { date: '2024-12-20', value: 12000 },
+                { date: '2024-12-21', value: 12250 },
+                { date: '2024-12-22', value: 12500 },
+                { date: '2024-12-23', value: 12600 },
+                { date: '2024-12-24', value: 12847.50 }
+            ],
+            allocation: [
+                { sport: 'Futebol', amount: 6000, percentage: 46.7 },
+                { sport: 'Tênis', amount: 3500, percentage: 27.2 },
+                { sport: 'Basquete', amount: 2000, percentage: 15.6 },
+                { sport: 'Outros', amount: 1347.50, percentage: 10.5 }
+            ],
+            performance: {
+                monthlyReturn: 12.5,
+                weeklyReturn: 2.8,
+                bestDay: 684.25,
+                worstDay: -45.80
             }
-        }
+        };
         
-        function loadSampleData() {
-            const sampleData = {
-                current: 12847.50,
-                initial: 10000.00,
-                profit: 2847.50,
-                growth: 28.48,
-                daily: [
-                    { date: '2024-12-20', value: 12000 },
-                    { date: '2024-12-21', value: 12250 },
-                    { date: '2024-12-22', value: 12500 },
-                    { date: '2024-12-23', value: 12600 },
-                    { date: '2024-12-24', value: 12847.50 }
-                ],
-                allocation: [
-                    { sport: 'Futebol', amount: 6000, percentage: 46.7 },
-                    { sport: 'Tênis', amount: 3500, percentage: 27.2 },
-                    { sport: 'Basquete', amount: 2000, percentage: 15.6 },
-                    { sport: 'Outros', amount: 1347.50, percentage: 10.5 }
-                ],
-                performance: {
-                    monthlyReturn: 12.5,
-                    weeklyReturn: 2.8,
-                    bestDay: 684.25,
-                    worstDay: -45.80
-                }
-            };
-            
-            updateBankrollUI(sampleData);
-            initializeCharts(sampleData);
-            loadSampleTransactions();
-        }
+        updateBankrollUI(sampleData);
+        initializeCharts(sampleData);
+        loadSampleTransactions();
+    }
+    
+    function updateBankrollUI(data) {
+        document.getElementById('currentBalance').textContent = `R$ ${data.current.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        document.getElementById('totalProfit').textContent = `R$ ${data.profit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        document.getElementById('avgStake').textContent = `${((data.current - data.initial) / data.initial * 100 / 12).toFixed(2)}%`;
         
-        function updateBankrollUI(data) {
-            document.getElementById('currentBalance').textContent = `R$ ${data.current.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-            document.getElementById('totalProfit').textContent = `R$ ${data.profit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-            document.getElementById('avgStake').textContent = `${((data.current - data.initial) / data.initial * 100 / 12).toFixed(2)}%`;
-            
-            // Atualizar alocação
-            const allocationList = document.getElementById('allocationList');
-            allocationList.innerHTML = data.allocation.map(item => {
-                const color = getSportColor(item.sport);
-                return `
-                    <div class="allocation-item">
-                        <div class="allocation-info">
-                            <div class="allocation-color" style="background: ${color};"></div>
-                            <span>${item.sport}</span>
-                        </div>
-                        <div class="allocation-bar">
-                            <div class="allocation-fill" style="width: ${item.percentage}%; background: ${color};"></div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-weight: 600;">R$ ${item.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-                            <div style="font-size: 0.8rem; color: #9ca3af;">${item.percentage}%</div>
-                        </div>
+        // Atualizar alocação
+        const allocationList = document.getElementById('allocationList');
+        allocationList.innerHTML = data.allocation.map(item => {
+            const color = getSportColor(item.sport);
+            return `
+                <div class="allocation-item">
+                    <div class="allocation-info">
+                        <div class="allocation-color" style="background: ${color};"></div>
+                        <span>${item.sport}</span>
                     </div>
-                `;
-            }).join('');
-        }
-        
-        function getSportColor(sport) {
-            const colors = {
-                'Futebol': '#6366f1',
-                'Tênis': '#10b981', 
-                'Basquete': '#f59e0b',
-                'Outros': '#6b7280'
-            };
-            return colors[sport] || '#6b7280';
-        }
-        
-        function initializeCharts(data) {
-            // Gráfico de Evolução do Bankroll
-            const bankrollCtx = document.getElementById('bankrollChart').getContext('2d');
-            bankrollChart = new Chart(bankrollCtx, {
-                type: 'line',
-                data: {
-                    labels: data.daily.map(item => new Date(item.date).toLocaleDateString('pt-BR')),
-                    datasets: [{
-                        label: 'Bankroll (R$)',
-                        data: data.daily.map(item => item.value),
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4
-                    }]
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: ${item.percentage}%; background: ${color};"></div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600;">R$ ${item.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                        <div style="font-size: 0.8rem; color: #9ca3af;">${item.percentage}%</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function getSportColor(sport) {
+        const colors = {
+            'Futebol': '#6366f1',
+            'Tênis': '#10b981', 
+            'Basquete': '#f59e0b',
+            'Outros': '#6b7280'
+        };
+        return colors[sport] || '#6b7280';
+    }
+    
+    function initializeCharts(data) {
+        // Gráfico de Evolução do Bankroll
+        const bankrollCtx = document.getElementById('bankrollChart').getContext('2d');
+        bankrollChart = new Chart(bankrollCtx, {
+            type: 'line',
+            data: {
+                labels: data.daily.map(item => new Date(item.date).toLocaleDateString('pt-BR')),
+                datasets: [{
+                    label: 'Bankroll (R$)',
+                    data: data.daily.map(item => item.value),
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
-                            },
-                            ticks: {
-                                color: '#9ca3af',
-                                callback: function(value) {
-                                    return 'R$ ' + value.toLocaleString('pt-BR');
-                                }
-                            }
+                scales: {
+                    y: {
+                        grid: {
+                            color: 'rgba(255,255,255,0.1)'
                         },
-                        x: {
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
-                            },
-                            ticks: {
-                                color: '#9ca3af'
+                        ticks: {
+                            color: '#9ca3af',
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
                             }
                         }
-                    }
-                }
-            });
-            
-            // Gráfico de Alocação
-            const allocationCtx = document.getElementById('allocationChart').getContext('2d');
-            allocationChart = new Chart(allocationCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: data.allocation.map(item => item.sport),
-                    datasets: [{
-                        data: data.allocation.map(item => item.percentage),
-                        backgroundColor: data.allocation.map(item => getSportColor(item.sport)),
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#9ca3af',
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function loadSampleTransactions() {
-            const transactions = [
-                { date: '2024-12-25', description: 'Lucro - Flamengo vs Vasco', type: 'profit', amount: 47.62, balance: 12847.50 },
-                { date: '2024-12-25', description: 'Lucro - Lakers vs Warriors', type: 'profit', amount: 24.96, balance: 12800.00 },
-                { date: '2024-12-24', description: 'Depósito via PIX', type: 'deposit', amount: 1000.00, balance: 12750.00 },
-                { date: '2024-12-23', description: 'Retirada para investimento', type: 'withdrawal', amount: -500.00, balance: 11750.00 },
-                { date: '2024-12-22', description: 'Lucro - Nadal vs Djokovic', type: 'profit', amount: 29.40, balance: 12250.00 }
-            ];
-            
-            const tbody = document.getElementById('transactionsTable');
-            tbody.innerHTML = transactions.map(transaction => `
-                <tr>
-                    <td>${new Date(transaction.date).toLocaleDateString('pt-BR')}</td>
-                    <td>${transaction.description}</td>
-                    <td>
-                        <span class="transaction-type type-${transaction.type}">
-                            ${getTransactionTypeText(transaction.type)}
-                        </span>
-                    </td>
-                    <td class="${transaction.amount > 0 ? 'profit-positive' : 'profit-negative'}">
-                        <strong>${transaction.amount > 0 ? '+' : ''}R$ ${Math.abs(transaction.amount).toFixed(2)}</strong>
-                    </td>
-                    <td>R$ ${transaction.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                </tr>
-            `).join('');
-        }
-        
-        function getTransactionTypeText(type) {
-            const typeMap = {
-                'deposit': 'Depósito',
-                'withdrawal': 'Retirada',
-                'profit': 'Lucro'
-            };
-            return typeMap[type] || type;
-        }
-        
-        // Modal Functions
-        function showDepositModal() {
-            document.getElementById('depositModal').style.display = 'block';
-            document.getElementById('depositAmount').focus();
-        }
-        
-        function closeDepositModal() {
-            document.getElementById('depositModal').style.display = 'none';
-            document.getElementById('depositAmount').value = '';
-            document.getElementById('depositNotes').value = '';
-        }
-        
-        function showWithdrawModal() {
-            document.getElementById('withdrawModal').style.display = 'block';
-            document.getElementById('withdrawAmount').focus();
-        }
-        
-        function closeWithdrawModal() {
-            document.getElementById('withdrawModal').style.display = 'none';
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('withdrawAccount').value = '';
-        }
-        
-        async function processDeposit() {
-            const amount = parseFloat(document.getElementById('depositAmount').value);
-            const method = document.getElementById('depositMethod').value;
-            const notes = document.getElementById('depositNotes').value;
-            
-            if (!amount || amount <= 0) {
-                alert('Por favor, insira um valor válido para depósito.');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/bankroll', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('surebet_token')}`
                     },
-                    body: JSON.stringify({
-                        amount: amount,
-                        operation: 'deposit',
-                        method: method,
-                        notes: notes
-                    })
-                });
-                
-                if (response.ok) {
-                    alert(`Depósito de R$ ${amount.toFixed(2)} realizado com sucesso!`);
-                    closeDepositModal();
-                    loadBankrollData();
-                } else {
-                    alert('Erro ao processar depósito.');
+                    x: {
+                        grid: {
+                            color: 'rgba(255,255,255,0.1)'
+                        },
+                        ticks: {
+                            color: '#9ca3af'
+                        }
+                    }
                 }
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Depósito simulado com sucesso! Em produção, isso integraria com um gateway de pagamento.');
+            }
+        });
+        
+        // Gráfico de Alocação
+        const allocationCtx = document.getElementById('allocationChart').getContext('2d');
+        allocationChart = new Chart(allocationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: data.allocation.map(item => item.sport),
+                datasets: [{
+                    data: data.allocation.map(item => item.percentage),
+                    backgroundColor: data.allocation.map(item => getSportColor(item.sport)),
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#9ca3af',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function loadSampleTransactions() {
+        const transactions = [
+            { date: '2024-12-25', description: 'Lucro - Flamengo vs Vasco', type: 'profit', amount: 47.62, balance: 12847.50 },
+            { date: '2024-12-25', description: 'Lucro - Lakers vs Warriors', type: 'profit', amount: 24.96, balance: 12800.00 },
+            { date: '2024-12-24', description: 'Depósito via PIX', type: 'deposit', amount: 1000.00, balance: 12750.00 },
+            { date: '2024-12-23', description: 'Retirada para investimento', type: 'withdrawal', amount: -500.00, balance: 11750.00 },
+            { date: '2024-12-22', description: 'Lucro - Nadal vs Djokovic', type: 'profit', amount: 29.40, balance: 12250.00 }
+        ];
+        
+        const tbody = document.getElementById('transactionsTable');
+        tbody.innerHTML = transactions.map(transaction => `
+            <tr>
+                <td>${new Date(transaction.date).toLocaleDateString('pt-BR')}</td>
+                <td>${transaction.description}</td>
+                <td>
+                    <span class="transaction-type type-${transaction.type}">
+                        ${getTransactionTypeText(transaction.type)}
+                    </span>
+                </td>
+                <td class="${transaction.amount > 0 ? 'profit-positive' : 'profit-negative'}">
+                    <strong>${transaction.amount > 0 ? '+' : ''}R$ ${Math.abs(transaction.amount).toFixed(2)}</strong>
+                </td>
+                <td>R$ ${transaction.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+            </tr>
+        `).join('');
+    }
+    
+    function getTransactionTypeText(type) {
+        const typeMap = {
+            'deposit': 'Depósito',
+            'withdrawal': 'Retirada',
+            'profit': 'Lucro'
+        };
+        return typeMap[type] || type;
+    }
+    
+    // Modal Functions
+    function showDepositModal() {
+        document.getElementById('depositModal').style.display = 'block';
+        document.getElementById('depositAmount').focus();
+    }
+    
+    function closeDepositModal() {
+        document.getElementById('depositModal').style.display = 'none';
+        document.getElementById('depositAmount').value = '';
+        document.getElementById('depositNotes').value = '';
+    }
+    
+    function showWithdrawModal() {
+        document.getElementById('withdrawModal').style.display = 'block';
+        document.getElementById('withdrawAmount').focus();
+    }
+    
+    function closeWithdrawModal() {
+        document.getElementById('withdrawModal').style.display = 'none';
+        document.getElementById('withdrawAmount').value = '';
+        document.getElementById('withdrawAccount').value = '';
+    }
+    
+    async function processDeposit() {
+        const amount = parseFloat(document.getElementById('depositAmount').value);
+        const method = document.getElementById('depositMethod').value;
+        const notes = document.getElementById('depositNotes').value;
+        
+        if (!amount || amount <= 0) {
+            alert('Por favor, insira um valor válido para depósito.');
+            return;
+        }
+        
+        try {
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/bankroll', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('surebet_token')}`
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    operation: 'deposit',
+                    method: method,
+                    notes: notes
+                })
+            });
+            
+            if (response.ok) {
+                alert(`Depósito de R$ ${amount.toFixed(2)} realizado com sucesso!`);
                 closeDepositModal();
                 loadBankrollData();
+            } else {
+                alert('Erro ao processar depósito.');
             }
-        }
-        
-        async function processWithdrawal() {
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const method = document.getElementById('withdrawMethod').value;
-            const account = document.getElementById('withdrawAccount').value;
-            
-            if (!amount || amount <= 0) {
-                alert('Por favor, insira um valor válido para retirada.');
-                return;
-            }
-            
-            if (!account) {
-                alert('Por favor, informe a chave/conta para a retirada.');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/bankroll', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('surebet_token')}`
-                    },
-                    body: JSON.stringify({
-                        amount: amount,
-                        operation: 'withdraw',
-                        method: method,
-                        account: account
-                    })
-                });
-                
-                if (response.ok) {
-                    alert(`Retirada de R$ ${amount.toFixed(2)} solicitada com sucesso!`);
-                    closeWithdrawModal();
-                    loadBankrollData();
-                } else {
-                    alert('Erro ao processar retirada.');
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Retirada simulada com sucesso! Em produção, isso processaria a transferência.');
-                closeWithdrawModal();
-                loadBankrollData();
-            }
-        }
-        
-        function updateChartPeriod(period) {
-            // Em produção, isso recarregaria os dados do período selecionado
-            alert(`Período alterado para: ${period}`);
-        }
-        
-        function showAllTransactions() {
-            alert('Abrindo histórico completo de transações...');
-            // Em produção, isso abriria uma página com todas as transações
-        }
-        
-        function refreshData() {
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Depósito simulado com sucesso! Em produção, isso integraria com um gateway de pagamento.');
+            closeDepositModal();
             loadBankrollData();
         }
+    }
+    
+    async function processWithdrawal() {
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        const method = document.getElementById('withdrawMethod').value;
+        const account = document.getElementById('withdrawAccount').value;
         
-        // Carregar dados ao iniciar
-        document.addEventListener('DOMContentLoaded', loadBankrollData);
+        if (!amount || amount <= 0) {
+            alert('Por favor, insira um valor válido para retirada.');
+            return;
+        }
         
-        // Fechar modal ao clicar fora
-        window.onclick = function(event) {
-            const modals = document.getElementsByClassName('modal');
-            for (let modal of modals) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
+        if (!account) {
+            alert('Por favor, informe a chave/conta para a retirada.');
+            return;
+        }
+        
+        try {
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/bankroll', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('surebet_token')}`
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    operation: 'withdraw',
+                    method: method,
+                    account: account
+                })
+            });
+            
+            if (response.ok) {
+                alert(`Retirada de R$ ${amount.toFixed(2)} solicitada com sucesso!`);
+                closeWithdrawModal();
+                loadBankrollData();
+            } else {
+                alert('Erro ao processar retirada.');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Retirada simulada com sucesso! Em produção, isso processaria a transferência.');
+            closeWithdrawModal();
+            loadBankrollData();
+        }
+    }
+    
+    function updateChartPeriod(period) {
+        // Em produção, isso recarregaria os dados do período selecionado
+        alert(`Período alterado para: ${period}`);
+    }
+    
+    function showAllTransactions() {
+        alert('Abrindo histórico completo de transações...');
+        // Em produção, isso abriria uma página com todas as transações
+    }
+    
+    function refreshData() {
+        loadBankrollData();
+    }
+    
+    // Carregar dados ao iniciar
+    document.addEventListener('DOMContentLoaded', loadBankrollData);
+    
+    // Fechar modal ao clicar fora
+    window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
             }
         }
-    </script>
+    }
+</script>
 </body>
+
 </html>
