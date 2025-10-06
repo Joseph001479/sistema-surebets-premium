@@ -476,7 +476,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="/dashboard" class="back-btn">
+        <a href="dashboard.html" class="back-btn">
             <i class="fas fa-arrow-left"></i>
             Voltar ao Dashboard
         </a>
@@ -701,391 +701,396 @@
         </div>
     </div>
 
-    <script>
-        let profitChart, sportDistributionChart;
-        let currentPage = 1;
-        const itemsPerPage = 10;
-        let allHistory = [];
-        
-        // Carregar histórico
-        async function loadHistory() {
-            try {
-                const period = document.getElementById('filterPeriod').value;
-                const response = await fetch(`/api/history?period=${period}`);
-                const data = await response.json();
-                updateHistoryUI(data);
-                initializeCharts(data);
-                loadDetailedHistory(data);
-            } catch (error) {
-                console.error('Erro ao carregar histórico:', error);
-                // Dados de exemplo para demonstração
-                loadSampleData();
+   <script>
+    // ✅ URL DA API CORRIGIDA
+    const API_URL = 'https://sistema-surebets-premium-ba6dc287994f.herokuapp.com/api';
+    
+    let profitChart, sportDistributionChart;
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let allHistory = [];
+    
+    // Carregar histórico
+    async function loadHistory() {
+        try {
+            const period = document.getElementById('filterPeriod').value;
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(`${API_URL}/history?period=${period}`);
+            const data = await response.json();
+            updateHistoryUI(data);
+            initializeCharts(data);
+            loadDetailedHistory(data);
+        } catch (error) {
+            console.error('Erro ao carregar histórico:', error);
+            // Dados de exemplo para demonstração
+            loadSampleData();
+        }
+    }
+    
+    function loadSampleData() {
+        const sampleData = {
+            period: 'month',
+            summary: {
+                totalOperations: 347,
+                totalStaked: 285000,
+                totalProfit: 12847.50,
+                avgROI: 4.27,
+                successRate: 94.8
+            },
+            daily: [
+                { date: '2024-12-25', operations: 15, profit: 684.25, roi: 4.52 },
+                { date: '2024-12-24', operations: 12, profit: 523.80, roi: 4.31 },
+                { date: '2024-12-23', operations: 18, profit: 742.15, roi: 4.68 },
+                { date: '2024-12-22', operations: 14, profit: 598.40, roi: 4.25 },
+                { date: '2024-12-21', operations: 16, profit: 612.75, roi: 4.15 },
+                { date: '2024-12-20', operations: 13, profit: 551.30, roi: 4.12 },
+                { date: '2024-12-19', operations: 11, profit: 478.90, roi: 4.08 }
+            ],
+            sports: [
+                { sport: 'Futebol', operations: 156, profit: 6842.50, roi: 4.38 },
+                { sport: 'Tênis', operations: 98, profit: 3520.75, roi: 4.15 },
+                { sport: 'Basquete', operations: 67, profit: 1847.25, roi: 4.52 },
+                { sport: 'Outros', operations: 26, profit: 637.00, roi: 3.89 }
+            ],
+            analytics: {
+                bestDay: { date: '2024-12-23', profit: 742.15 },
+                worstDay: { date: '2024-12-19', profit: -45.80 },
+                longestStreak: 28,
+                bestSport: 'Futebol'
             }
-        }
+        };
         
-        function loadSampleData() {
-            const sampleData = {
-                period: 'month',
-                summary: {
-                    totalOperations: 347,
-                    totalStaked: 285000,
-                    totalProfit: 12847.50,
-                    avgROI: 4.27,
-                    successRate: 94.8
-                },
-                daily: [
-                    { date: '2024-12-25', operations: 15, profit: 684.25, roi: 4.52 },
-                    { date: '2024-12-24', operations: 12, profit: 523.80, roi: 4.31 },
-                    { date: '2024-12-23', operations: 18, profit: 742.15, roi: 4.68 },
-                    { date: '2024-12-22', operations: 14, profit: 598.40, roi: 4.25 },
-                    { date: '2024-12-21', operations: 16, profit: 612.75, roi: 4.15 },
-                    { date: '2024-12-20', operations: 13, profit: 551.30, roi: 4.12 },
-                    { date: '2024-12-19', operations: 11, profit: 478.90, roi: 4.08 }
-                ],
-                sports: [
-                    { sport: 'Futebol', operations: 156, profit: 6842.50, roi: 4.38 },
-                    { sport: 'Tênis', operations: 98, profit: 3520.75, roi: 4.15 },
-                    { sport: 'Basquete', operations: 67, profit: 1847.25, roi: 4.52 },
-                    { sport: 'Outros', operations: 26, profit: 637.00, roi: 3.89 }
-                ],
-                analytics: {
-                    bestDay: { date: '2024-12-23', profit: 742.15 },
-                    worstDay: { date: '2024-12-19', profit: -45.80 },
-                    longestStreak: 28,
-                    bestSport: 'Futebol'
-                }
-            };
-            
-            updateHistoryUI(sampleData);
-            initializeCharts(sampleData);
-            loadSampleDetailedHistory();
-        }
+        updateHistoryUI(sampleData);
+        initializeCharts(sampleData);
+        loadSampleDetailedHistory();
+    }
+    
+    function updateHistoryUI(data) {
+        document.getElementById('totalOperations').textContent = data.summary.totalOperations.toLocaleString();
+        document.getElementById('totalProfit').textContent = `R$ ${data.summary.totalProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        document.getElementById('avgROI').textContent = `${data.summary.avgROI}%`;
+        document.getElementById('successRate').textContent = `${data.summary.successRate}%`;
         
-        function updateHistoryUI(data) {
-            document.getElementById('totalOperations').textContent = data.summary.totalOperations.toLocaleString();
-            document.getElementById('totalProfit').textContent = `R$ ${data.summary.totalProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-            document.getElementById('avgROI').textContent = `${data.summary.avgROI}%`;
-            document.getElementById('successRate').textContent = `${data.summary.successRate}%`;
-            
-            // Atualizar performance por esporte
-            const sportPerformance = document.getElementById('sportPerformance');
-            sportPerformance.innerHTML = data.sports.map(sport => `
-                <div class="metric-item">
-                    <div class="metric-value profit-positive">${sport.roi}%</div>
-                    <div class="metric-label">${sport.sport}</div>
-                    <div style="font-size: 0.7rem; color: #9ca3af; margin-top: 0.25rem;">
-                        ${sport.operations} ops
-                    </div>
+        // Atualizar performance por esporte
+        const sportPerformance = document.getElementById('sportPerformance');
+        sportPerformance.innerHTML = data.sports.map(sport => `
+            <div class="metric-item">
+                <div class="metric-value profit-positive">${sport.roi}%</div>
+                <div class="metric-label">${sport.sport}</div>
+                <div style="font-size: 0.7rem; color: #9ca3af; margin-top: 0.25rem;">
+                    ${sport.operations} ops
                 </div>
-            `).join('');
-        }
+            </div>
+        `).join('');
+    }
+    
+    function initializeCharts(data) {
+        // Gráfico de Lucros
+        const profitCtx = document.getElementById('profitChart').getContext('2d');
+        if (profitChart) profitChart.destroy();
         
-        function initializeCharts(data) {
-            // Gráfico de Lucros
-            const profitCtx = document.getElementById('profitChart').getContext('2d');
-            if (profitChart) profitChart.destroy();
-            
-            profitChart = new Chart(profitCtx, {
-                type: 'bar',
-                data: {
-                    labels: data.daily.map(item => new Date(item.date).toLocaleDateString('pt-BR', { weekday: 'short' })),
-                    datasets: [{
-                        label: 'Lucro Diário (R$)',
-                        data: data.daily.map(item => item.profit),
-                        backgroundColor: data.daily.map(item => item.profit > 0 ? '#10b981' : '#ef4444'),
-                        borderColor: data.daily.map(item => item.profit > 0 ? '#10b981' : '#ef4444'),
-                        borderWidth: 1
-                    }]
+        profitChart = new Chart(profitCtx, {
+            type: 'bar',
+            data: {
+                labels: data.daily.map(item => new Date(item.date).toLocaleDateString('pt-BR', { weekday: 'short' })),
+                datasets: [{
+                    label: 'Lucro Diário (R$)',
+                    data: data.daily.map(item => item.profit),
+                    backgroundColor: data.daily.map(item => item.profit > 0 ? '#10b981' : '#ef4444'),
+                    borderColor: data.daily.map(item => item.profit > 0 ? '#10b981' : '#ef4444'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
+                scales: {
+                    y: {
+                        grid: {
+                            color: 'rgba(255,255,255,0.1)'
+                        },
+                        ticks: {
+                            color: '#9ca3af',
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
                         }
                     },
-                    scales: {
-                        y: {
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
-                            },
-                            ticks: {
-                                color: '#9ca3af',
-                                callback: function(value) {
-                                    return 'R$ ' + value.toLocaleString('pt-BR');
-                                }
-                            }
+                    x: {
+                        grid: {
+                            color: 'rgba(255,255,255,0.1)'
                         },
-                        x: {
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
-                            },
-                            ticks: {
-                                color: '#9ca3af'
+                        ticks: {
+                            color: '#9ca3af'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gráfico de Distribuição por Esporte
+        const distributionCtx = document.getElementById('sportDistributionChart').getContext('2d');
+        if (sportDistributionChart) sportDistributionChart.destroy();
+        
+        sportDistributionChart = new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: data.sports.map(item => item.sport),
+                datasets: [{
+                    data: data.sports.map(item => item.operations),
+                    backgroundColor: [
+                        '#6366f1',
+                        '#10b981',
+                        '#f59e0b',
+                        '#6b7280'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#9ca3af',
+                            font: {
+                                size: 11
                             }
                         }
                     }
                 }
-            });
-            
-            // Gráfico de Distribuição por Esporte
-            const distributionCtx = document.getElementById('sportDistributionChart').getContext('2d');
-            if (sportDistributionChart) sportDistributionChart.destroy();
-            
-            sportDistributionChart = new Chart(distributionCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: data.sports.map(item => item.sport),
-                    datasets: [{
-                        data: data.sports.map(item => item.operations),
-                        backgroundColor: [
-                            '#6366f1',
-                            '#10b981',
-                            '#f59e0b',
-                            '#6b7280'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#9ca3af',
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            }
+        });
+    }
+    
+    function loadSampleDetailedHistory() {
+        const sampleOperations = [
+            {
+                id: 1,
+                event: 'Flamengo vs Vasco',
+                sport: 'Futebol',
+                totalStake: 1000,
+                profit: 47.62,
+                roi: 4.76,
+                status: 'completed',
+                timestamp: new Date('2024-12-25T15:30:00'),
+                details: 'Match Winner - Casa A: R$ 487,80 @2.10, Casa B: R$ 512,20 @2.00'
+            },
+            {
+                id: 2,
+                event: 'Lakers vs Warriors',
+                sport: 'Basquete',
+                totalStake: 800,
+                profit: 24.96,
+                roi: 3.12,
+                status: 'completed',
+                timestamp: new Date('2024-12-25T14:15:00'),
+                details: 'Moneyline - Casa A: R$ 410,26 @1.95, Casa B: R$ 389,74 @2.05'
+            },
+            {
+                id: 3,
+                event: 'Nadal vs Djokovic',
+                sport: 'Tênis',
+                totalStake: 1200,
+                profit: 29.40,
+                roi: 2.45,
+                status: 'completed',
+                timestamp: new Date('2024-12-25T13:45:00'),
+                details: 'Set Winner - Casa A: R$ 615,38 @1.85, Casa B: R$ 584,62 @2.15'
+            },
+            {
+                id: 4,
+                event: 'Real Madrid vs Barcelona',
+                sport: 'Futebol',
+                totalStake: 1500,
+                profit: 68.25,
+                roi: 4.55,
+                status: 'completed',
+                timestamp: new Date('2024-12-24T16:20:00'),
+                details: 'Match Winner - Casa A: R$ 735,00 @2.15, Casa B: R$ 765,00 @2.05'
+            }
+        ];
+        
+        allHistory = sampleOperations;
+        displayHistory();
+        updatePagination();
+    }
+    
+    function loadDetailedHistory(data) {
+        // Em produção, isso carregaria o histórico detalhado da API
+        loadSampleDetailedHistory();
+    }
+    
+    function displayHistory() {
+        const tbody = document.getElementById('historyTableBody');
+        const filteredHistory = filterHistory(allHistory);
+        
+        // Paginação
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedHistory = filteredHistory.slice(startIndex, endIndex);
+        
+        tbody.innerHTML = paginatedHistory.map(operation => `
+            <tr>
+                <td>${formatDateTime(operation.timestamp)}</td>
+                <td>
+                    <strong>${operation.event}</strong>
+                    <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 0.25rem;">
+                        ${operation.details.split(' - ')[0]}
+                    </div>
+                </td>
+                <td><span class="sport-badge">${operation.sport}</span></td>
+                <td><strong>R$ ${operation.totalStake.toFixed(2)}</strong></td>
+                <td class="${operation.profit > 0 ? 'profit-positive' : 'profit-negative'}">
+                    <strong>R$ ${operation.profit.toFixed(2)}</strong>
+                </td>
+                <td class="${operation.roi > 0 ? 'profit-positive' : 'profit-negative'}">
+                    <strong>${operation.roi}%</strong>
+                </td>
+                <td>
+                    <span class="status-badge status-${operation.status}">
+                        ${getStatusText(operation.status)}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" 
+                            onclick="showOperationDetails(${operation.id})">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    function filterHistory(history) {
+        const sportFilter = document.getElementById('filterSport').value;
+        const statusFilter = document.getElementById('filterStatus').value;
+        const sortFilter = document.getElementById('filterSort').value;
+        
+        let filtered = history;
+        
+        // Filtro por esporte
+        if (sportFilter) {
+            filtered = filtered.filter(op => op.sport === sportFilter);
         }
         
-        function loadSampleDetailedHistory() {
-            const sampleOperations = [
-                {
-                    id: 1,
-                    event: 'Flamengo vs Vasco',
-                    sport: 'Futebol',
-                    totalStake: 1000,
-                    profit: 47.62,
-                    roi: 4.76,
-                    status: 'completed',
-                    timestamp: new Date('2024-12-25T15:30:00'),
-                    details: 'Match Winner - Casa A: R$ 487,80 @2.10, Casa B: R$ 512,20 @2.00'
-                },
-                {
-                    id: 2,
-                    event: 'Lakers vs Warriors',
-                    sport: 'Basquete',
-                    totalStake: 800,
-                    profit: 24.96,
-                    roi: 3.12,
-                    status: 'completed',
-                    timestamp: new Date('2024-12-25T14:15:00'),
-                    details: 'Moneyline - Casa A: R$ 410,26 @1.95, Casa B: R$ 389,74 @2.05'
-                },
-                {
-                    id: 3,
-                    event: 'Nadal vs Djokovic',
-                    sport: 'Tênis',
-                    totalStake: 1200,
-                    profit: 29.40,
-                    roi: 2.45,
-                    status: 'completed',
-                    timestamp: new Date('2024-12-25T13:45:00'),
-                    details: 'Set Winner - Casa A: R$ 615,38 @1.85, Casa B: R$ 584,62 @2.15'
-                },
-                {
-                    id: 4,
-                    event: 'Real Madrid vs Barcelona',
-                    sport: 'Futebol',
-                    totalStake: 1500,
-                    profit: 68.25,
-                    roi: 4.55,
-                    status: 'completed',
-                    timestamp: new Date('2024-12-24T16:20:00'),
-                    details: 'Match Winner - Casa A: R$ 735,00 @2.15, Casa B: R$ 765,00 @2.05'
-                }
-            ];
-            
-            allHistory = sampleOperations;
+        // Filtro por status
+        if (statusFilter) {
+            filtered = filtered.filter(op => op.status === statusFilter);
+        }
+        
+        // Ordenação
+        switch (sortFilter) {
+            case 'date_desc':
+                filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                break;
+            case 'date_asc':
+                filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                break;
+            case 'profit_desc':
+                filtered.sort((a, b) => b.profit - a.profit);
+                break;
+            case 'profit_asc':
+                filtered.sort((a, b) => a.profit - b.profit);
+                break;
+        }
+        
+        return filtered;
+    }
+    
+    function applyFilters() {
+        currentPage = 1;
+        loadHistory();
+    }
+    
+    function changePage(direction) {
+        const totalPages = Math.ceil(filterHistory(allHistory).length / itemsPerPage);
+        const newPage = currentPage + direction;
+        
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPage = newPage;
             displayHistory();
             updatePagination();
         }
+    }
+    
+    function updatePagination() {
+        const totalOperations = filterHistory(allHistory).length;
+        const totalPages = Math.ceil(totalOperations / itemsPerPage);
         
-        function loadDetailedHistory(data) {
-            // Em produção, isso carregaria o histórico detalhado da API
-            loadSampleDetailedHistory();
+        document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+        document.getElementById('prevPage').disabled = currentPage === 1;
+        document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+    }
+    
+    function getStatusText(status) {
+        const statusMap = {
+            'completed': 'Concluída',
+            'pending': 'Pendente'
+        };
+        return statusMap[status] || status;
+    }
+    
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('pt-BR') + '<br>' + date.toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    }
+    
+    function updateChartType(type) {
+        alert(`Tipo de gráfico alterado para: ${type}`);
+        // Em produção, isso recarregaria os dados do tipo selecionado
+    }
+    
+    function toggleDetailedView() {
+        alert('Alternando visualização...');
+        // Em produção, isso alternaria entre visualização resumida e detalhada
+    }
+    
+    function showOperationDetails(operationId) {
+        const operation = allHistory.find(op => op.id === operationId);
+        if (operation) {
+            alert(`Detalhes da Operação:\n\nEvento: ${operation.event}\nEsporte: ${operation.sport}\nStake: R$ ${operation.totalStake.toFixed(2)}\nLucro: R$ ${operation.profit.toFixed(2)}\nROI: ${operation.roi}%\n\n${operation.details}`);
         }
-        
-        function displayHistory() {
-            const tbody = document.getElementById('historyTableBody');
-            const filteredHistory = filterHistory(allHistory);
-            
-            // Paginação
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedHistory = filteredHistory.slice(startIndex, endIndex);
-            
-            tbody.innerHTML = paginatedHistory.map(operation => `
-                <tr>
-                    <td>${formatDateTime(operation.timestamp)}</td>
-                    <td>
-                        <strong>${operation.event}</strong>
-                        <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 0.25rem;">
-                            ${operation.details.split(' - ')[0]}
-                        </div>
-                    </td>
-                    <td><span class="sport-badge">${operation.sport}</span></td>
-                    <td><strong>R$ ${operation.totalStake.toFixed(2)}</strong></td>
-                    <td class="${operation.profit > 0 ? 'profit-positive' : 'profit-negative'}">
-                        <strong>R$ ${operation.profit.toFixed(2)}</strong>
-                    </td>
-                    <td class="${operation.roi > 0 ? 'profit-positive' : 'profit-negative'}">
-                        <strong>${operation.roi}%</strong>
-                    </td>
-                    <td>
-                        <span class="status-badge status-${operation.status}">
-                            ${getStatusText(operation.status)}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" 
-                                onclick="showOperationDetails(${operation.id})">
-                            <i class="fas fa-info-circle"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        function filterHistory(history) {
-            const sportFilter = document.getElementById('filterSport').value;
-            const statusFilter = document.getElementById('filterStatus').value;
-            const sortFilter = document.getElementById('filterSort').value;
-            
-            let filtered = history;
-            
-            // Filtro por esporte
-            if (sportFilter) {
-                filtered = filtered.filter(op => op.sport === sportFilter);
-            }
-            
-            // Filtro por status
-            if (statusFilter) {
-                filtered = filtered.filter(op => op.status === statusFilter);
-            }
-            
-            // Ordenação
-            switch (sortFilter) {
-                case 'date_desc':
-                    filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                    break;
-                case 'date_asc':
-                    filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                    break;
-                case 'profit_desc':
-                    filtered.sort((a, b) => b.profit - a.profit);
-                    break;
-                case 'profit_asc':
-                    filtered.sort((a, b) => a.profit - b.profit);
-                    break;
-            }
-            
-            return filtered;
-        }
-        
-        function applyFilters() {
-            currentPage = 1;
-            loadHistory();
-        }
-        
-        function changePage(direction) {
-            const totalPages = Math.ceil(filterHistory(allHistory).length / itemsPerPage);
-            const newPage = currentPage + direction;
-            
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPage = newPage;
-                displayHistory();
-                updatePagination();
-            }
-        }
-        
-        function updatePagination() {
-            const totalOperations = filterHistory(allHistory).length;
-            const totalPages = Math.ceil(totalOperations / itemsPerPage);
-            
-            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-            document.getElementById('prevPage').disabled = currentPage === 1;
-            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
-        }
-        
-        function getStatusText(status) {
-            const statusMap = {
-                'completed': 'Concluída',
-                'pending': 'Pendente'
-            };
-            return statusMap[status] || status;
-        }
-        
-        function formatDateTime(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('pt-BR') + '<br>' + date.toLocaleTimeString('pt-BR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-        }
-        
-        function updateChartType(type) {
-            alert(`Tipo de gráfico alterado para: ${type}`);
-            // Em produção, isso recarregaria os dados do tipo selecionado
-        }
-        
-        function toggleDetailedView() {
-            alert('Alternando visualização...');
-            // Em produção, isso alternaria entre visualização resumida e detalhada
-        }
-        
-        function showOperationDetails(operationId) {
-            const operation = allHistory.find(op => op.id === operationId);
-            if (operation) {
-                alert(`Detalhes da Operação:\n\nEvento: ${operation.event}\nEsporte: ${operation.sport}\nStake: R$ ${operation.totalStake.toFixed(2)}\nLucro: R$ ${operation.profit.toFixed(2)}\nROI: ${operation.roi}%\n\n${operation.details}`);
-            }
-        }
-        
-        // Funções de Exportação
-        function exportFullHistory() {
-            alert('Exportando histórico completo...');
-        }
-        
-        function exportCSV() {
-            alert('Exportando como CSV...');
-        }
-        
-        function exportExcel() {
-            alert('Exportando como Excel...');
-        }
-        
-        function exportPDF() {
-            alert('Gerando PDF...');
-        }
-        
-        function generateReport() {
-            alert('Gerando relatório detalhado...');
-        }
-        
-        function refreshHistory() {
-            loadHistory();
-        }
-        
-        // Carregar histórico ao iniciar
-        document.addEventListener('DOMContentLoaded', loadHistory);
-    </script>
+    }
+    
+    // Funções de Exportação
+    function exportFullHistory() {
+        alert('Exportando histórico completo...');
+    }
+    
+    function exportCSV() {
+        alert('Exportando como CSV...');
+    }
+    
+    function exportExcel() {
+        alert('Exportando como Excel...');
+    }
+    
+    function exportPDF() {
+        alert('Gerando PDF...');
+    }
+    
+    function generateReport() {
+        alert('Gerando relatório detalhado...');
+    }
+    
+    function refreshHistory() {
+        loadHistory();
+    }
+    
+    // Carregar histórico ao iniciar
+    document.addEventListener('DOMContentLoaded', loadHistory);
+</script>
 </body>
+
 </html>
