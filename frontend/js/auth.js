@@ -6,7 +6,7 @@ const API_URL = window.location.hostname.includes('github.io')
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('surebet_token');
     if (token) {
-        window.location.href = 'dashboard.html';
+        window.location.href = 'frontend/dashboard.html';
     }
 });
 
@@ -31,7 +31,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async function(
         if (response.ok) {
             localStorage.setItem('surebet_token', data.token);
             localStorage.setItem('user_data', JSON.stringify(data.user));
-            window.location.href = 'dashboard.html';
+            window.location.href = 'frontend/dashboard.html';
         } else {
             alert('Erro: ' + data.error);
         }
@@ -62,11 +62,12 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
         if (response.ok) {
             localStorage.setItem('surebet_token', data.token);
             localStorage.setItem('user_data', JSON.stringify(data.user));
-            window.location.href = 'dashboard.html';
+            window.location.href = 'frontend/dashboard.html';
         } else {
             alert('Erro: ' + data.error);
         }
     } catch (error) {
         alert('Erro de conexão: ' + error.message);
     }
+
 });
