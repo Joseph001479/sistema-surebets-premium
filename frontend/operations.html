@@ -433,7 +433,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="/dashboard" class="back-btn">
+        <a href="dashboard.html" class="back-btn">
             <i class="fas fa-arrow-left"></i>
             Voltar ao Dashboard
         </a>
@@ -623,398 +623,404 @@
     </div>
 
     <script>
-        let currentPage = 1;
-        const itemsPerPage = 10;
-        let allOperations = [];
-        
-        // Carregar operações
-        async function loadOperations() {
-            try {
-                const response = await fetch('/api/operations');
-                const data = await response.json();
-                allOperations = data.operations || [];
-                displayOperations();
-                updatePagination();
-            } catch (error) {
-                console.error('Erro ao carregar operações:', error);
-                // Carregar dados de exemplo
-                loadSampleOperations();
-            }
-        }
-        
-        function loadSampleOperations() {
-            allOperations = [
-                {
-                    id: 1,
-                    event: 'Flamengo vs Vasco',
-                    sport: 'Futebol',
-                    stakes: [
-                        { casa: 'Bet365', amount: 487.80, odd: 2.10 },
-                        { casa: 'Betano', amount: 512.20, odd: 2.00 }
-                    ],
-                    totalStake: 1000,
-                    expectedProfit: 47.62,
-                    actualProfit: 47.62,
-                    status: 'completed',
-                    roi: 4.76,
-                    timestamp: new Date('2024-12-25T15:30:00'),
-                    notes: 'Operação executada com sucesso'
-                },
-                {
-                    id: 2,
-                    event: 'Lakers vs Warriors',
-                    sport: 'Basquete',
-                    stakes: [
-                        { casa: 'Bet365', amount: 410.26, odd: 1.95 },
-                        { casa: 'Betano', amount: 389.74, odd: 2.05 }
-                    ],
-                    totalStake: 800,
-                    expectedProfit: 24.96,
-                    actualProfit: 24.96,
-                    status: 'completed',
-                    roi: 3.12,
-                    timestamp: new Date('2024-12-25T14:15:00'),
-                    notes: 'Jogo muito equilibrado'
-                },
-                {
-                    id: 3,
-                    event: 'Nadal vs Djokovic',
-                    sport: 'Tênis',
-                    stakes: [
-                        { casa: 'Bet365', amount: 615.38, odd: 1.85 },
-                        { casa: 'Betano', amount: 584.62, odd: 2.15 }
-                    ],
-                    totalStake: 1200,
-                    expectedProfit: 29.40,
-                    actualProfit: 29.40,
-                    status: 'completed',
-                    roi: 2.45,
-                    timestamp: new Date('2024-12-25T13:45:00'),
-                    notes: 'Excelente oportunidade'
-                },
-                {
-                    id: 4,
-                    event: 'Real Madrid vs Barcelona',
-                    sport: 'Futebol',
-                    stakes: [
-                        { casa: 'Bet365', amount: 520.00, odd: 2.05 },
-                        { casa: 'Betano', amount: 480.00, odd: 2.10 }
-                    ],
-                    totalStake: 1000,
-                    expectedProfit: 32.00,
-                    actualProfit: null,
-                    status: 'pending',
-                    roi: 3.20,
-                    timestamp: new Date(),
-                    notes: 'Aguardando resultado'
-                }
-            ];
+    // ✅ URL DA API CORRIGIDA
+    const API_URL = 'https://sistema-surebets-premium-ba6dc287994f.herokuapp.com/api';
+    
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let allOperations = [];
+    
+    // Carregar operações
+    async function loadOperations() {
+        try {
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/operations');
+            const data = await response.json();
+            allOperations = data.operations || [];
             displayOperations();
             updatePagination();
+        } catch (error) {
+            console.error('Erro ao carregar operações:', error);
+            // Carregar dados de exemplo
+            loadSampleOperations();
         }
-        
-        function displayOperations() {
-            const tbody = document.getElementById('operationsTableBody');
-            const emptyState = document.getElementById('emptyState');
-            
-            // Aplicar filtros
-            let filteredOperations = filterOperations(allOperations);
-            
-            // Paginação
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedOperations = filteredOperations.slice(startIndex, endIndex);
-            
-            if (paginatedOperations.length === 0) {
-                tbody.style.display = 'none';
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-            tbody.style.display = 'table-row-group';
-            emptyState.style.display = 'none';
-            
-            tbody.innerHTML = paginatedOperations.map(operation => `
-                <tr>
-                    <td>
-                        <strong>${operation.event}</strong>
-                        <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 0.25rem;">
-                            ${operation.market || 'Match Winner'}
-                        </div>
-                    </td>
-                    <td><span class="sport-badge">${operation.sport}</span></td>
-                    <td><strong>R$ ${operation.totalStake.toFixed(2)}</strong></td>
-                    <td class="${operation.actualProfit > 0 ? 'profit-positive' : 'profit-negative'}">
-                        <strong>R$ ${operation.actualProfit ? operation.actualProfit.toFixed(2) : operation.expectedProfit.toFixed(2)}</strong>
-                    </td>
-                    <td class="${operation.roi > 0 ? 'profit-positive' : 'profit-negative'}">
-                        <strong>${operation.roi}%</strong>
-                    </td>
-                    <td>
-                        <span class="status-badge status-${operation.status}">
-                            ${getStatusText(operation.status)}
-                        </span>
-                    </td>
-                    <td>${formatDate(operation.timestamp)}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn action-view" onclick="viewOperation(${operation.id})" title="Ver detalhes">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn action-edit" onclick="editOperation(${operation.id})" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="action-btn action-delete" onclick="deleteOperation(${operation.id})" title="Excluir">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        function filterOperations(operations) {
-            const statusFilter = document.getElementById('filterStatus').value;
-            const sportFilter = document.getElementById('filterSport').value;
-            const periodFilter = document.getElementById('filterPeriod').value;
-            const sortFilter = document.getElementById('filterSort').value;
-            
-            let filtered = operations;
-            
-            // Filtro por status
-            if (statusFilter) {
-                filtered = filtered.filter(op => op.status === statusFilter);
-            }
-            
-            // Filtro por esporte
-            if (sportFilter) {
-                filtered = filtered.filter(op => op.sport === sportFilter);
-            }
-            
-            // Filtro por período
-            if (periodFilter !== 'all') {
-                const now = new Date();
-                let startDate;
-                
-                switch (periodFilter) {
-                    case 'today':
-                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                        break;
-                    case 'week':
-                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-                        break;
-                    case 'month':
-                        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                        break;
-                }
-                
-                filtered = filtered.filter(op => new Date(op.timestamp) >= startDate);
-            }
-            
-            // Ordenação
-            switch (sortFilter) {
-                case 'newest':
-                    filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                    break;
-                case 'oldest':
-                    filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                    break;
-                case 'profit':
-                    filtered.sort((a, b) => (b.actualProfit || b.expectedProfit) - (a.actualProfit || a.expectedProfit));
-                    break;
-                case 'stake':
-                    filtered.sort((a, b) => b.totalStake - a.totalStake);
-                    break;
-            }
-            
-            return filtered;
-        }
-        
-        function applyFilters() {
-            currentPage = 1;
-            displayOperations();
-            updatePagination();
-        }
-        
-        function changePage(direction) {
-            const totalPages = Math.ceil(filterOperations(allOperations).length / itemsPerPage);
-            const newPage = currentPage + direction;
-            
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPage = newPage;
-                displayOperations();
-                updatePagination();
-            }
-        }
-        
-        function updatePagination() {
-            const totalOperations = filterOperations(allOperations).length;
-            const totalPages = Math.ceil(totalOperations / itemsPerPage);
-            
-            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-            document.getElementById('prevPage').disabled = currentPage === 1;
-            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
-        }
-        
-        function getStatusText(status) {
-            const statusMap = {
-                'completed': 'Concluída',
-                'pending': 'Pendente',
-                'failed': 'Falha'
-            };
-            return statusMap[status] || status;
-        }
-        
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-        }
-        
-        // Modal Functions
-        function viewOperation(operationId) {
-            const operation = allOperations.find(op => op.id === operationId);
-            if (!operation) return;
-            
-            document.getElementById('operationDetails').innerHTML = `
-                <div class="detail-section">
-                    <h3>Informações Gerais</h3>
-                    <p><strong>Evento:</strong> ${operation.event}</p>
-                    <p><strong>Esporte:</strong> ${operation.sport}</p>
-                    <p><strong>Mercado:</strong> ${operation.market || 'Match Winner'}</p>
-                    <p><strong>Status:</strong> <span class="status-badge status-${operation.status}">${getStatusText(operation.status)}</span></p>
-                    <p><strong>Data:</strong> ${formatDate(operation.timestamp)}</p>
-                </div>
-                
-                <div class="detail-section">
-                    <h3>Stakes e Odds</h3>
-                    <div class="stakes-grid">
-                        ${operation.stakes.map(stake => `
-                            <div class="stake-card">
-                                <strong>${stake.casa}</strong><br>
-                                Stake: R$ ${stake.amount.toFixed(2)}<br>
-                                Odd: ${stake.odd}
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <p><strong>Stake Total:</strong> R$ ${operation.totalStake.toFixed(2)}</p>
-                        <p><strong>Lucro Esperado:</strong> R$ ${operation.expectedProfit.toFixed(2)}</p>
-                        ${operation.actualProfit ? `<p><strong>Lucro Real:</strong> R$ ${operation.actualProfit.toFixed(2)}</p>` : ''}
-                        <p><strong>ROI:</strong> ${operation.roi}%</p>
-                    </div>
-                </div>
-                
-                ${operation.notes ? `
-                <div class="detail-section">
-                    <h3>Observações</h3>
-                    <p>${operation.notes}</p>
-                </div>
-                ` : ''}
-            `;
-            
-            document.getElementById('operationModal').style.display = 'block';
-        }
-        
-        function closeModal() {
-            document.getElementById('operationModal').style.display = 'none';
-        }
-        
-        function showNewOperationModal() {
-            document.getElementById('newOperationModal').style.display = 'block';
-        }
-        
-        function closeNewOperationModal() {
-            document.getElementById('newOperationModal').style.display = 'none';
-        }
-        
-        async function createOperation() {
-            const newOperation = {
-                event: document.getElementById('newEvent').value,
-                sport: document.getElementById('newSport').value,
-                totalStake: parseFloat(document.getElementById('newStake').value),
+    }
+    
+    function loadSampleOperations() {
+        allOperations = [
+            {
+                id: 1,
+                event: 'Flamengo vs Vasco',
+                sport: 'Futebol',
                 stakes: [
-                    {
-                        casa: document.getElementById('newCasa1').value,
-                        amount: parseFloat(document.getElementById('newStake1').value),
-                        odd: 2.10
-                    },
-                    {
-                        casa: document.getElementById('newCasa2').value,
-                        amount: parseFloat(document.getElementById('newStake2').value),
-                        odd: 2.00
-                    }
+                    { casa: 'Bet365', amount: 487.80, odd: 2.10 },
+                    { casa: 'Betano', amount: 512.20, odd: 2.00 }
                 ],
+                totalStake: 1000,
                 expectedProfit: 47.62,
-                roi: 4.76
-            };
+                actualProfit: 47.62,
+                status: 'completed',
+                roi: 4.76,
+                timestamp: new Date('2024-12-25T15:30:00'),
+                notes: 'Operação executada com sucesso'
+            },
+            {
+                id: 2,
+                event: 'Lakers vs Warriors',
+                sport: 'Basquete',
+                stakes: [
+                    { casa: 'Bet365', amount: 410.26, odd: 1.95 },
+                    { casa: 'Betano', amount: 389.74, odd: 2.05 }
+                ],
+                totalStake: 800,
+                expectedProfit: 24.96,
+                actualProfit: 24.96,
+                status: 'completed',
+                roi: 3.12,
+                timestamp: new Date('2024-12-25T14:15:00'),
+                notes: 'Jogo muito equilibrado'
+            },
+            {
+                id: 3,
+                event: 'Nadal vs Djokovic',
+                sport: 'Tênis',
+                stakes: [
+                    { casa: 'Bet365', amount: 615.38, odd: 1.85 },
+                    { casa: 'Betano', amount: 584.62, odd: 2.15 }
+                ],
+                totalStake: 1200,
+                expectedProfit: 29.40,
+                actualProfit: 29.40,
+                status: 'completed',
+                roi: 2.45,
+                timestamp: new Date('2024-12-25T13:45:00'),
+                notes: 'Excelente oportunidade'
+            },
+            {
+                id: 4,
+                event: 'Real Madrid vs Barcelona',
+                sport: 'Futebol',
+                stakes: [
+                    { casa: 'Bet365', amount: 520.00, odd: 2.05 },
+                    { casa: 'Betano', amount: 480.00, odd: 2.10 }
+                ],
+                totalStake: 1000,
+                expectedProfit: 32.00,
+                actualProfit: null,
+                status: 'pending',
+                roi: 3.20,
+                timestamp: new Date(),
+                notes: 'Aguardando resultado'
+            }
+        ];
+        displayOperations();
+        updatePagination();
+    }
+    
+    function displayOperations() {
+        const tbody = document.getElementById('operationsTableBody');
+        const emptyState = document.getElementById('emptyState');
+        
+        // Aplicar filtros
+        let filteredOperations = filterOperations(allOperations);
+        
+        // Paginação
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedOperations = filteredOperations.slice(startIndex, endIndex);
+        
+        if (paginatedOperations.length === 0) {
+            tbody.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
+        
+        tbody.style.display = 'table-row-group';
+        emptyState.style.display = 'none';
+        
+        tbody.innerHTML = paginatedOperations.map(operation => `
+            <tr>
+                <td>
+                    <strong>${operation.event}</strong>
+                    <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 0.25rem;">
+                        ${operation.market || 'Match Winner'}
+                    </div>
+                </td>
+                <td><span class="sport-badge">${operation.sport}</span></td>
+                <td><strong>R$ ${operation.totalStake.toFixed(2)}</strong></td>
+                <td class="${operation.actualProfit > 0 ? 'profit-positive' : 'profit-negative'}">
+                    <strong>R$ ${operation.actualProfit ? operation.actualProfit.toFixed(2) : operation.expectedProfit.toFixed(2)}</strong>
+                </td>
+                <td class="${operation.roi > 0 ? 'profit-positive' : 'profit-negative'}">
+                    <strong>${operation.roi}%</strong>
+                </td>
+                <td>
+                    <span class="status-badge status-${operation.status}">
+                        ${getStatusText(operation.status)}
+                    </span>
+                </td>
+                <td>${formatDate(operation.timestamp)}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn action-view" onclick="viewOperation(${operation.id})" title="Ver detalhes">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn action-edit" onclick="editOperation(${operation.id})" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn action-delete" onclick="deleteOperation(${operation.id})" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    function filterOperations(operations) {
+        const statusFilter = document.getElementById('filterStatus').value;
+        const sportFilter = document.getElementById('filterSport').value;
+        const periodFilter = document.getElementById('filterPeriod').value;
+        const sortFilter = document.getElementById('filterSort').value;
+        
+        let filtered = operations;
+        
+        // Filtro por status
+        if (statusFilter) {
+            filtered = filtered.filter(op => op.status === statusFilter);
+        }
+        
+        // Filtro por esporte
+        if (sportFilter) {
+            filtered = filtered.filter(op => op.sport === sportFilter);
+        }
+        
+        // Filtro por período
+        if (periodFilter !== 'all') {
+            const now = new Date();
+            let startDate;
             
-            try {
-                const response = await fetch('/api/operations', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
+            switch (periodFilter) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'week':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    break;
+            }
+            
+            filtered = filtered.filter(op => new Date(op.timestamp) >= startDate);
+        }
+        
+        // Ordenação
+        switch (sortFilter) {
+            case 'newest':
+                filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                break;
+            case 'oldest':
+                filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                break;
+            case 'profit':
+                filtered.sort((a, b) => (b.actualProfit || b.expectedProfit) - (a.actualProfit || a.expectedProfit));
+                break;
+            case 'stake':
+                filtered.sort((a, b) => b.totalStake - a.totalStake);
+                break;
+        }
+        
+        return filtered;
+    }
+    
+    function applyFilters() {
+        currentPage = 1;
+        displayOperations();
+        updatePagination();
+    }
+    
+    function changePage(direction) {
+        const totalPages = Math.ceil(filterOperations(allOperations).length / itemsPerPage);
+        const newPage = currentPage + direction;
+        
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPage = newPage;
+            displayOperations();
+            updatePagination();
+        }
+    }
+    
+    function updatePagination() {
+        const totalOperations = filterOperations(allOperations).length;
+        const totalPages = Math.ceil(totalOperations / itemsPerPage);
+        
+        document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+        document.getElementById('prevPage').disabled = currentPage === 1;
+        document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+    }
+    
+    function getStatusText(status) {
+        const statusMap = {
+            'completed': 'Concluída',
+            'pending': 'Pendente',
+            'failed': 'Falha'
+        };
+        return statusMap[status] || status;
+    }
+    
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    }
+    
+    // Modal Functions
+    function viewOperation(operationId) {
+        const operation = allOperations.find(op => op.id === operationId);
+        if (!operation) return;
+        
+        document.getElementById('operationDetails').innerHTML = `
+            <div class="detail-section">
+                <h3>Informações Gerais</h3>
+                <p><strong>Evento:</strong> ${operation.event}</p>
+                <p><strong>Esporte:</strong> ${operation.sport}</p>
+                <p><strong>Mercado:</strong> ${operation.market || 'Match Winner'}</p>
+                <p><strong>Status:</strong> <span class="status-badge status-${operation.status}">${getStatusText(operation.status)}</span></p>
+                <p><strong>Data:</strong> ${formatDate(operation.timestamp)}</p>
+            </div>
+            
+            <div class="detail-section">
+                <h3>Stakes e Odds</h3>
+                <div class="stakes-grid">
+                    ${operation.stakes.map(stake => `
+                        <div class="stake-card">
+                            <strong>${stake.casa}</strong><br>
+                            Stake: R$ ${stake.amount.toFixed(2)}<br>
+                            Odd: ${stake.odd}
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="margin-top: 1rem;">
+                    <p><strong>Stake Total:</strong> R$ ${operation.totalStake.toFixed(2)}</p>
+                    <p><strong>Lucro Esperado:</strong> R$ ${operation.expectedProfit.toFixed(2)}</p>
+                    ${operation.actualProfit ? `<p><strong>Lucro Real:</strong> R$ ${operation.actualProfit.toFixed(2)}</p>` : ''}
+                    <p><strong>ROI:</strong> ${operation.roi}%</p>
+                </div>
+            </div>
+            
+            ${operation.notes ? `
+            <div class="detail-section">
+                <h3>Observações</h3>
+                <p>${operation.notes}</p>
+            </div>
+            ` : ''}
+        `;
+        
+        document.getElementById('operationModal').style.display = 'block';
+    }
+    
+    function closeModal() {
+        document.getElementById('operationModal').style.display = 'none';
+    }
+    
+    function showNewOperationModal() {
+        document.getElementById('newOperationModal').style.display = 'block';
+    }
+    
+    function closeNewOperationModal() {
+        document.getElementById('newOperationModal').style.display = 'none';
+    }
+    
+    async function createOperation() {
+        const newOperation = {
+            event: document.getElementById('newEvent').value,
+            sport: document.getElementById('newSport').value,
+            totalStake: parseFloat(document.getElementById('newStake').value),
+            stakes: [
+                {
+                    casa: document.getElementById('newCasa1').value,
+                    amount: parseFloat(document.getElementById('newStake1').value),
+                    odd: 2.10
+                },
+                {
+                    casa: document.getElementById('newCasa2').value,
+                    amount: parseFloat(document.getElementById('newStake2').value),
+                    odd: 2.00
+                }
+            ],
+            expectedProfit: 47.62,
+            roi: 4.76
+        };
+        
+        try {
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/operations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('surebet_token')}`
-                    },
-                    body: JSON.stringify(newOperation)
-                });
-                
-                if (response.ok) {
-                    alert('Operação criada com sucesso!');
-                    closeNewOperationModal();
-                    loadOperations();
-                } else {
-                    alert('Erro ao criar operação');
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                // Adicionar localmente para demonstração
-                newOperation.id = Date.now();
-                newOperation.status = 'pending';
-                newOperation.timestamp = new Date();
-                allOperations.unshift(newOperation);
-                displayOperations();
-                updatePagination();
+                },
+                body: JSON.stringify(newOperation)
+            });
+            
+            if (response.ok) {
+                alert('Operação criada com sucesso!');
                 closeNewOperationModal();
-                alert('Operação adicionada localmente!');
+                loadOperations();
+            } else {
+                alert('Erro ao criar operação');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            // Adicionar localmente para demonstração
+            newOperation.id = Date.now();
+            newOperation.status = 'pending';
+            newOperation.timestamp = new Date();
+            allOperations.unshift(newOperation);
+            displayOperations();
+            updatePagination();
+            closeNewOperationModal();
+            alert('Operação adicionada localmente!');
+        }
+    }
+    
+    function editOperation(operationId) {
+        alert(`Editar operação ${operationId} - Funcionalidade em desenvolvimento`);
+    }
+    
+    function deleteOperation(operationId) {
+        if (confirm('Tem certeza que deseja excluir esta operação?')) {
+            allOperations = allOperations.filter(op => op.id !== operationId);
+            displayOperations();
+            updatePagination();
+        }
+    }
+    
+    function exportOperations() {
+        alert('Exportando operações...');
+        // Em produção, geraria um arquivo CSV/Excel
+    }
+    
+    function refreshOperations() {
+        loadOperations();
+    }
+    
+    // Carregar operações ao iniciar
+    document.addEventListener('DOMContentLoaded', loadOperations);
+    
+    // Fechar modal ao clicar fora
+    window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
             }
         }
-        
-        function editOperation(operationId) {
-            alert(`Editar operação ${operationId} - Funcionalidade em desenvolvimento`);
-        }
-        
-        function deleteOperation(operationId) {
-            if (confirm('Tem certeza que deseja excluir esta operação?')) {
-                allOperations = allOperations.filter(op => op.id !== operationId);
-                displayOperations();
-                updatePagination();
-            }
-        }
-        
-        function exportOperations() {
-            alert('Exportando operações...');
-            // Em produção, geraria um arquivo CSV/Excel
-        }
-        
-        function refreshOperations() {
-            loadOperations();
-        }
-        
-        // Carregar operações ao iniciar
-        document.addEventListener('DOMContentLoaded', loadOperations);
-        
-        // Fechar modal ao clicar fora
-        window.onclick = function(event) {
-            const modals = document.getElementsByClassName('modal');
-            for (let modal of modals) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            }
-        }
-    </script>
+    }
+</script>
 </body>
+
 </html>
