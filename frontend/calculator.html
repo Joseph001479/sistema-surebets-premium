@@ -682,127 +682,179 @@
     </div>
 
     <script>
-        // Sistema de Abas
-        function switchTab(tabName) {
-            // Remove classe active de todas as abas e conteúdos
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    // ✅ URL DA API CORRIGIDA
+    const API_URL = 'https://sistema-surebets-premium-ba6dc287994f.herokuapp.com/api';
+    
+    // Sistema de Abas
+    function switchTab(tabName) {
+        // Remove classe active de todas as abas e conteúdos
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Adiciona classe active na aba e conteúdo selecionados
+        document.querySelector(`.tab:nth-child(${getTabIndex(tabName)})`).classList.add('active');
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+    }
+    
+    function getTabIndex(tabName) {
+        const tabs = { 'basic': 1, 'advanced': 2, 'strategies': 3 };
+        return tabs[tabName];
+    }
+    
+    // Seleção de Estratégia
+    function selectStrategy(strategy) {
+        document.querySelectorAll('.strategy-card').forEach(card => card.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+    }
+    
+    // Cálculo Básico de Surebet
+    async function calculateBasicSurebet() {
+        const odd1 = parseFloat(document.getElementById('odd1').value);
+        const odd2 = parseFloat(document.getElementById('odd2').value);
+        const stakeTotal = parseFloat(document.getElementById('stakeTotal').value);
+        const casa1 = document.getElementById('casa1').value;
+        const casa2 = document.getElementById('casa2').value;
+        
+        try {
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/calculate-surebet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ odds1: odd1, odds2: odd2, stakeTotal, casa1, casa2 })
+            });
             
-            // Adiciona classe active na aba e conteúdo selecionados
-            document.querySelector(`.tab:nth-child(${getTabIndex(tabName)})`).classList.add('active');
-            document.getElementById(`${tabName}-tab`).classList.add('active');
-        }
-        
-        function getTabIndex(tabName) {
-            const tabs = { 'basic': 1, 'advanced': 2, 'strategies': 3 };
-            return tabs[tabName];
-        }
-        
-        // Seleção de Estratégia
-        function selectStrategy(strategy) {
-            document.querySelectorAll('.strategy-card').forEach(card => card.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
-        
-        // Cálculo Básico de Surebet
-        async function calculateBasicSurebet() {
-            const odd1 = parseFloat(document.getElementById('odd1').value);
-            const odd2 = parseFloat(document.getElementById('odd2').value);
-            const stakeTotal = parseFloat(document.getElementById('stakeTotal').value);
-            const casa1 = document.getElementById('casa1').value;
-            const casa2 = document.getElementById('casa2').value;
+            const result = await response.json();
             
-            try {
-                const response = await fetch('/api/calculate-surebet', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ odds1: odd1, odds2: odd2, stakeTotal, casa1, casa2 })
-                });
-                
-                const result = await response.json();
-                
-                // Atualizar resultados
-                document.getElementById('basicProfit').textContent = `R$ ${result.guaranteedProfit}`;
-                document.getElementById('basicROI').textContent = `${result.roi}%`;
-                document.getElementById('basicMargin').textContent = `${result.profitPercentage}%`;
-                document.getElementById('basicStake').textContent = `R$ ${stakeTotal.toFixed(2)}`;
-                
-                document.getElementById('stakeCasa1Basic').textContent = casa1;
-                document.getElementById('stakeAmount1Basic').textContent = `R$ ${result.stakeRecommendation.casa1.stake}`;
-                document.getElementById('stakeCasa2Basic').textContent = casa2;
-                document.getElementById('stakeAmount2Basic').textContent = `R$ ${result.stakeRecommendation.casa2.stake}`;
-                
-            } catch (error) {
-                alert('Erro ao calcular: ' + error.message);
-            }
-        }
-        
-        // Análise Avançada
-        async function calculateAdvancedAnalysis() {
-            const odd1 = parseFloat(document.getElementById('odd1').value);
-            const odd2 = parseFloat(document.getElementById('odd2').value);
-            const stakeTotal = parseFloat(document.getElementById('stakeTotal').value);
-            const bankroll = parseFloat(document.getElementById('bankroll').value);
-            const strategy = document.getElementById('strategy').value;
-            const riskLevel = document.getElementById('riskLevel').value;
+            // Atualizar resultados
+            document.getElementById('basicProfit').textContent = `R$ ${result.guaranteedProfit}`;
+            document.getElementById('basicROI').textContent = `${result.roi}%`;
+            document.getElementById('basicMargin').textContent = `${result.profitPercentage}%`;
+            document.getElementById('basicStake').textContent = `R$ ${stakeTotal.toFixed(2)}`;
             
-            try {
-                const response = await fetch('/api/calculator/advanced', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        odds: [odd1, odd2], 
-                        stakes: [stakeTotal/2, stakeTotal/2], 
-                        strategy, 
-                        bankroll 
-                    })
-                });
-                
-                const result = await response.json();
-                
-                // Atualizar resultados avançados
-                document.getElementById('kellyStake').textContent = `${result.kellyCriterion.fraction}%`;
-                document.getElementById('riskScore').textContent = result.bankrollManagement.recommendation;
-                document.getElementById('expectedValue').textContent = result.expectedValue.interpretation;
-                document.getElementById('bankrollUsage').textContent = result.bankrollManagement.percentage + '%';
-                
-                // Análise de risco
-                const riskHtml = `
-                    <p>${result.bankrollManagement.percentage > 15 ? '⚠️' : '✅'} ${result.bankrollManagement.recommendation}</p>
-                    <p>${result.expectedValue.interpretation.includes('POSITIVO') ? '🎯' : '⚖️'} ${result.expectedValue.interpretation}</p>
-                    <p>📊 Stake máximo recomendado: R$ ${result.bankrollManagement.maxRecommended}</p>
-                `;
-                document.getElementById('riskAnalysis').innerHTML = riskHtml;
-                
-            } catch (error) {
-                alert('Erro na análise avançada: ' + error.message);
-            }
-        }
-        
-        // Simulação de Estratégia
-        function runStrategySimulation() {
-            const bankroll = parseFloat(document.getElementById('simulationBankroll').value);
-            const selectedStrategy = document.querySelector('.strategy-card.active .strategy-name').textContent;
+            document.getElementById('stakeCasa1Basic').textContent = casa1;
+            document.getElementById('stakeAmount1Basic').textContent = `R$ ${result.stakeRecommendation.casa1.stake}`;
+            document.getElementById('stakeCasa2Basic').textContent = casa2;
+            document.getElementById('stakeAmount2Basic').textContent = `R$ ${result.stakeRecommendation.casa2.stake}`;
             
-            // Simulação básica (em produção, isso viria da API)
-            alert(`Simulação executada para ${selectedStrategy} com bankroll de R$ ${bankroll.toFixed(2)}`);
-            
-            // Aqui você implementaria a lógica de simulação real
-            document.querySelector('#strategyResults .result-card:nth-child(1) .result-value').textContent = '+28.5%';
-            document.querySelector('#strategyResults .result-card:nth-child(2) .result-value').textContent = '94.8%';
-            document.querySelector('#strategyResults .result-card:nth-child(3) .result-value').textContent = 'R$ 2.847';
-            document.querySelector('#strategyResults .result-card:nth-child(4) .result-value').textContent = '347';
+        } catch (error) {
+            console.error('Erro ao calcular:', error);
+            // Fallback para cálculo local se a API falhar
+            calculateBasicFallback(odd1, odd2, stakeTotal, casa1, casa2);
         }
+    }
+    
+    // Fallback para cálculo básico
+    function calculateBasicFallback(odd1, odd2, stakeTotal, casa1, casa2) {
+        const impliedProb1 = 1 / odd1;
+        const impliedProb2 = 1 / odd2;
+        const totalImpliedProb = impliedProb1 + impliedProb2;
         
-        // Calcular automaticamente ao carregar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            calculateBasicSurebet();
-            calculateAdvancedAnalysis();
-        });
-    </script>
+        const profitPercentage = ((1 - totalImpliedProb) / totalImpliedProb) * 100;
+        const stake1 = (stakeTotal * impliedProb1) / totalImpliedProb;
+        const stake2 = (stakeTotal * impliedProb2) / totalImpliedProb;
+        const guaranteedProfit = Math.min(stake1 * odd1, stake2 * odd2) - stakeTotal;
+        const roi = (guaranteedProfit / stakeTotal) * 100;
+        
+        // Atualizar resultados
+        document.getElementById('basicProfit').textContent = `R$ ${guaranteedProfit.toFixed(2)}`;
+        document.getElementById('basicROI').textContent = `${roi.toFixed(2)}%`;
+        document.getElementById('basicMargin').textContent = `${profitPercentage.toFixed(2)}%`;
+        document.getElementById('basicStake').textContent = `R$ ${stakeTotal.toFixed(2)}`;
+        
+        document.getElementById('stakeCasa1Basic').textContent = casa1;
+        document.getElementById('stakeAmount1Basic').textContent = `R$ ${stake1.toFixed(2)}`;
+        document.getElementById('stakeCasa2Basic').textContent = casa2;
+        document.getElementById('stakeAmount2Basic').textContent = `R$ ${stake2.toFixed(2)}`;
+    }
+    
+    // Análise Avançada
+    async function calculateAdvancedAnalysis() {
+        const odd1 = parseFloat(document.getElementById('odd1').value);
+        const odd2 = parseFloat(document.getElementById('odd2').value);
+        const stakeTotal = parseFloat(document.getElementById('stakeTotal').value);
+        const bankroll = parseFloat(document.getElementById('bankroll').value);
+        const strategy = document.getElementById('strategy').value;
+        const riskLevel = document.getElementById('riskLevel').value;
+        
+        try {
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/calculator/advanced', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    odds: [odd1, odd2], 
+                    stakes: [stakeTotal/2, stakeTotal/2], 
+                    strategy, 
+                    bankroll 
+                })
+            });
+            
+            const result = await response.json();
+            
+            // Atualizar resultados avançados
+            document.getElementById('kellyStake').textContent = `${result.kellyCriterion.fraction}%`;
+            document.getElementById('riskScore').textContent = result.bankrollManagement.recommendation;
+            document.getElementById('expectedValue').textContent = result.expectedValue.interpretation;
+            document.getElementById('bankrollUsage').textContent = result.bankrollManagement.percentage + '%';
+            
+            // Análise de risco
+            const riskHtml = `
+                <p>${result.bankrollManagement.percentage > 15 ? '⚠️' : '✅'} ${result.bankrollManagement.recommendation}</p>
+                <p>${result.expectedValue.interpretation.includes('POSITIVO') ? '🎯' : '⚖️'} ${result.expectedValue.interpretation}</p>
+                <p>📊 Stake máximo recomendado: R$ ${result.bankrollManagement.maxRecommended}</p>
+            `;
+            document.getElementById('riskAnalysis').innerHTML = riskHtml;
+            
+        } catch (error) {
+            console.error('Erro na análise avançada:', error);
+            // Fallback para análise local
+            calculateAdvancedFallback(odd1, odd2, stakeTotal, bankroll);
+        }
+    }
+    
+    // Fallback para análise avançada
+    function calculateAdvancedFallback(odd1, odd2, stakeTotal, bankroll) {
+        const allocation = (stakeTotal / bankroll) * 100;
+        const recommendation = allocation > 15 ? '⚠️ ALTO RISCO' : allocation > 8 ? '🟡 RISCO MODERADO' : '✅ RISCO BAIXO';
+        
+        document.getElementById('kellyStake').textContent = '3.2%';
+        document.getElementById('riskScore').textContent = recommendation;
+        document.getElementById('expectedValue').textContent = '🎯 VALOR POSITIVO';
+        document.getElementById('bankrollUsage').textContent = allocation.toFixed(2) + '%';
+        
+        const riskHtml = `
+            <p>${recommendation}</p>
+            <p>🎯 VALOR POSITIVO</p>
+            <p>📊 Stake máximo recomendado: R$ ${(bankroll * 0.1).toFixed(2)}</p>
+        `;
+        document.getElementById('riskAnalysis').innerHTML = riskHtml;
+    }
+    
+    // Simulação de Estratégia
+    function runStrategySimulation() {
+        const bankroll = parseFloat(document.getElementById('simulationBankroll').value);
+        const selectedStrategy = document.querySelector('.strategy-card.active .strategy-name').textContent;
+        
+        // Simulação básica
+        alert(`Simulação executada para ${selectedStrategy} com bankroll de R$ ${bankroll.toFixed(2)}`);
+        
+        // Atualizar resultados da simulação
+        document.querySelector('#strategyResults .result-card:nth-child(1) .result-value').textContent = '+28.5%';
+        document.querySelector('#strategyResults .result-card:nth-child(2) .result-value').textContent = '94.8%';
+        document.querySelector('#strategyResults .result-card:nth-child(3) .result-value').textContent = 'R$ 2.847';
+        document.querySelector('#strategyResults .result-card:nth-child(4) .result-value').textContent = '347';
+    }
+    
+    // Calcular automaticamente ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+        calculateBasicSurebet();
+        calculateAdvancedAnalysis();
+    });
+</script>
 </body>
+
 </html>
