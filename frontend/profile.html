@@ -584,7 +584,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="/dashboard" class="back-btn">
+        <a href="dashboard.html" class="back-btn">
             <i class="fas fa-arrow-left"></i>
             Voltar ao Dashboard
         </a>
@@ -970,6 +970,9 @@
     </div>
 
     <script>
+    // ✅ URL DA API CORRIGIDA
+    const API_URL = 'https://sistema-surebets-premium-ba6dc287994f.herokuapp.com/api';
+    
     // Sistema de Abas Melhorado
     function switchTab(tabName) {
         // Remove classe active de todas as abas e conteúdos
@@ -1003,11 +1006,10 @@
         if (confirm('Tem certeza que deseja sair?')) {
             localStorage.removeItem('surebet_token');
             localStorage.removeItem('user_data');
-            window.location.href = '/';
+            window.location.href = 'index.html';
         }
     }
-
-    // Resto do código permanece igual...
+    
     function toggleSport(element) {
         element.classList.toggle('selected');
     }
@@ -1039,7 +1041,8 @@
         };
         
         try {
-            const response = await fetch('/api/preferences', {
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/preferences', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1121,7 +1124,8 @@
     
     async function loadUserData() {
         try {
-            const response = await fetch('/api/profile');
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/profile');
             const profile = await response.json();
             updateProfileUI(profile);
         } catch (error) {
@@ -1169,7 +1173,8 @@
         };
         
         try {
-            const response = await fetch('/api/profile', {
+            // ✅ API CALL CORRIGIDA
+            const response = await fetch(API_URL + '/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1207,4 +1212,5 @@
     }
 </script>
 </body>
+
 </html>
