@@ -1099,11 +1099,22 @@
         }
         
         function logout() {
-            localStorage.removeItem('surebet_token');
-            localStorage.removeItem('user_data');
-            window.location.href = 'index.html';
-        }
+    console.log('🚪 Iniciando logout...');
+    
+    if (confirm('Tem certeza que deseja sair do sistema?')) {
+        // Limpa todos os dados
+        localStorage.removeItem('surebet_token');
+        localStorage.removeItem('user_data');
+        localStorage.removeItem('user_profile');
         
+        // Feedback
+        alert('Logout realizado com sucesso!');
+        
+        // Redireciona
+        window.location.href = 'index.html';
+            }
+        }
+    
         // Redimensionamento responsivo
         window.addEventListener('resize', function() {
             // Re-inicializar gráficos se necessário
@@ -1114,4 +1125,5 @@
     </script>
 </body>
 </html>
+
 
