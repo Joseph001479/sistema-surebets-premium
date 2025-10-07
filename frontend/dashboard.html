@@ -1099,34 +1099,19 @@
         }
         
         function logout() {
-    console.log('🚪 Logout iniciado...');
-    console.log('📍 Localização atual:', window.location.pathname);
+    console.log('💥 LOGOUT NUCLEAR ATIVADO');
     
-    if (confirm('Tem certeza que deseja sair do sistema?')) {
-        // Limpeza COMPLETA para garantir
+    if (confirm('Sair do sistema?')) {
         localStorage.clear();
-        sessionStorage.clear();
         
-        console.log('✅ Todos os dados de sessão limpos');
-        
-        // ✅ CAMINHO CORRETO: ../ sobe para a raiz
-        const loginPage = '../index.html';
-        console.log('🔄 Redirecionando para:', loginPage);
-        
-        // Feedback visual
-        alert('Saindo do sistema...');
-        
-        // Redirecionamento
-        setTimeout(() => {
-            window.location.href = loginPage;
-        }, 800);
-    } else {
-        console.log('❌ Logout cancelado pelo usuário');
+        // ✅ URL ABSOLUTA 100% GARANTIDA
+        window.location.href = 'https://joseph001479.github.io/sistema-surebets-premium/';
     }
 }
     </script>
 </body>
 </html>
+
 
 
 
