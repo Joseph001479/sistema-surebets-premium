@@ -902,134 +902,176 @@
         </main>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Inicializa animações
+    // ✅ INICIALIZA ANIMAÇÕES
+    if (typeof AOS !== 'undefined') {
         AOS.init({
             duration: 1000,
             once: true
         });
-        
-        // Menu Mobile
-        function toggleMenu() {
-            const navMenu = document.getElementById('navMenu');
+    }
+
+    // ✅ MENU MOBILE
+    function toggleMenu() {
+        const navMenu = document.getElementById('navMenu');
+        if (navMenu) {
             navMenu.classList.toggle('active');
         }
+    }
+
+    // ✅ LOGOUT CORRETO E FUNCIONAL
+    function logout() {
+        console.log('🚀 LOGOUT EXECUTADO');
         
-        // Fecha menu ao clicar em um item (mobile)
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth < 768) {
-                    document.getElementById('navMenu').classList.remove('active');
+        if (confirm('Tem certeza que deseja sair do sistema?')) {
+            // Limpeza completa
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            console.log('✅ Dados limpos');
+            
+            // Redirecionamento CORRETO
+            window.location.href = 'https://joseph001479.github.io/sistema-surebets-premium/';
+        }
+        return false;
+    }
+
+    // ✅ FECHA MENU MOBILE
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth < 768) {
+                const navMenu = document.getElementById('navMenu');
+                if (navMenu) {
+                    navMenu.classList.remove('active');
                 }
+            }
+        });
+    });
+
+    // ✅ INICIALIZAÇÃO PRINCIPAL
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 DASHBOARD INICIADO');
+        
+        // Configura eventos de logout
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
             });
-        });
+        }
         
-        // Inicializa gráficos
-        document.addEventListener('DOMContentLoaded', function() {
+        // Inicializa componentes
+        if (typeof initializeCharts === 'function') {
             initializeCharts();
+        }
+        if (typeof loadUserData === 'function') {
             loadUserData();
-            calculateSurebet(); // Calcula exemplo inicial
-        });
-        
-        function initializeCharts() {
+        }
+        if (typeof calculateSurebet === 'function') {
+            calculateSurebet();
+        }
+    });
+
+    // ✅ GRÁFICOS
+    function initializeCharts() {
+        try {
             // Gráfico de Performance
-            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-            new Chart(performanceCtx, {
-                type: 'line',
-                data: {
-                    labels: ['1/12', '5/12', '10/12', '15/12', '20/12', '25/12'],
-                    datasets: [{
-                        label: 'Lucro Acumulado (R$)',
-                        data: [2500, 4200, 5800, 7500, 9200, 12847],
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+            const performanceCtx = document.getElementById('performanceChart');
+            if (performanceCtx) {
+                new Chart(performanceCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['1/12', '5/12', '10/12', '15/12', '20/12', '25/12'],
+                        datasets: [{
+                            label: 'Lucro Acumulado (R$)',
+                            data: [2500, 4200, 5800, 7500, 9200, 12847],
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
                     },
-                    scales: {
-                        y: {
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#9ca3af' }
                             },
-                            ticks: {
-                                color: '#9ca3af'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
-                            },
-                            ticks: {
-                                color: '#9ca3af'
+                            x: {
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#9ca3af' }
                             }
                         }
                     }
-                }
-            });
-            
+                });
+            }
+
             // Gráfico de Esportes
-            const sportsCtx = document.getElementById('sportsChart').getContext('2d');
-            new Chart(sportsCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Futebol', 'Tênis', 'Basquete', 'Outros'],
-                    datasets: [{
-                        data: [45, 25, 20, 10],
-                        backgroundColor: [
-                            '#6366f1',
-                            '#10b981',
-                            '#f59e0b',
-                            '#6b7280'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#9ca3af',
-                                font: {
-                                    size: window.innerWidth < 768 ? 10 : 12
+            const sportsCtx = document.getElementById('sportsChart');
+            if (sportsCtx) {
+                new Chart(sportsCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Futebol', 'Tênis', 'Basquete', 'Outros'],
+                        datasets: [{
+                            data: [45, 25, 20, 10],
+                            backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#6b7280']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#9ca3af',
+                                    font: {
+                                        size: window.innerWidth < 768 ? 10 : 12
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
+        } catch (error) {
+            console.error('Erro nos gráficos:', error);
         }
-        
-        function loadUserData() {
+    }
+
+    // ✅ CARREGA DADOS DO USUÁRIO
+    function loadUserData() {
+        try {
             const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
             if (userData.name) {
-                document.getElementById('userName').textContent = userData.name;
-                document.getElementById('displayUserName').textContent = userData.name;
-                document.getElementById('userAvatar').textContent = userData.name.charAt(0).toUpperCase();
+                const userName = document.getElementById('userName');
+                const displayUserName = document.getElementById('displayUserName');
+                const userAvatar = document.getElementById('userAvatar');
+                
+                if (userName) userName.textContent = userData.name;
+                if (displayUserName) displayUserName.textContent = userData.name;
+                if (userAvatar) userAvatar.textContent = userData.name.charAt(0).toUpperCase();
             }
+        } catch (error) {
+            console.error('Erro ao carregar dados:', error);
         }
-        
-        function calculateSurebet() {
-            const odd1 = parseFloat(document.getElementById('odd1').value);
-            const odd2 = parseFloat(document.getElementById('odd2').value);
-            const stakeTotal = parseFloat(document.getElementById('stakeTotal').value);
-            const casa1 = document.getElementById('casa1').value;
-            const casa2 = document.getElementById('casa2').value;
+    }
+
+    // ✅ CALCULADORA DE SUREBETS
+    function calculateSurebet() {
+        try {
+            const odd1 = parseFloat(document.getElementById('odd1')?.value || 2.10);
+            const odd2 = parseFloat(document.getElementById('odd2')?.value || 2.00);
+            const stakeTotal = parseFloat(document.getElementById('stakeTotal')?.value || 1000);
+            const casa1 = document.getElementById('casa1')?.value || 'Bet365';
+            const casa2 = document.getElementById('casa2')?.value || 'Betano';
             
-            // Cálculos de surebet
             const impliedProb1 = 1 / odd1;
             const impliedProb2 = 1 / odd2;
             const totalImpliedProb = impliedProb1 + impliedProb2;
@@ -1039,39 +1081,44 @@
             const stake2 = (stakeTotal * impliedProb2) / totalImpliedProb;
             const guaranteedProfit = (stake1 * odd1) - stakeTotal;
             
-            // Atualizar resultados
-            document.getElementById('resultProfit').textContent = `R$ ${guaranteedProfit.toFixed(2)}`;
-            document.getElementById('resultROI').textContent = `${profitPercentage.toFixed(2)}%`;
-            document.getElementById('resultMargin').textContent = `${profitPercentage.toFixed(2)}%`;
-            document.getElementById('stakeCasa1').textContent = `${casa1}: R$ ${stake1.toFixed(2)}`;
-            document.getElementById('stakeCasa2').textContent = `${casa2}: R$ ${stake2.toFixed(2)}`;
+            // Atualiza resultados
+            const resultProfit = document.getElementById('resultProfit');
+            const resultROI = document.getElementById('resultROI');
+            const resultMargin = document.getElementById('resultMargin');
+            const stakeCasa1 = document.getElementById('stakeCasa1');
+            const stakeCasa2 = document.getElementById('stakeCasa2');
             
-            // Efeito visual
-            const resultCard = document.querySelector('.result-card');
-            resultCard.style.animation = 'pulse 0.5s ease-in-out';
-            setTimeout(() => {
-                resultCard.style.animation = '';
-            }, 500);
+            if (resultProfit) resultProfit.textContent = `R$ ${guaranteedProfit.toFixed(2)}`;
+            if (resultROI) resultROI.textContent = `${profitPercentage.toFixed(2)}%`;
+            if (resultMargin) resultMargin.textContent = `${profitPercentage.toFixed(2)}%`;
+            if (stakeCasa1) stakeCasa1.textContent = `${casa1}: R$ ${stake1.toFixed(2)}`;
+            if (stakeCasa2) stakeCasa2.textContent = `${casa2}: R$ ${stake2.toFixed(2)}`;
+            
+        } catch (error) {
+            console.error('Erro no cálculo:', error);
         }
-        
-        function calculateOptimalStake() {
-            // Cálculo automático de stake otimizado
-            const bankroll = 10000; // Exemplo
-            const optimalStake = bankroll * 0.1; // 10% do bankroll
-            document.getElementById('stakeTotal').value = optimalStake.toFixed(2);
-            
-            // Recalcular
+    }
+
+    // ✅ OUTRAS FUNÇÕES
+    function calculateOptimalStake() {
+        try {
+            const bankroll = 10000;
+            const optimalStake = bankroll * 0.1;
+            const stakeTotal = document.getElementById('stakeTotal');
+            if (stakeTotal) stakeTotal.value = optimalStake.toFixed(2);
             calculateSurebet();
             showNotification('Stake otimizado calculado!', 'success');
+        } catch (error) {
+            console.error('Erro no stake:', error);
         }
-        
-        function registerOperation() {
-            showNotification('Operação registrada com sucesso!', 'success');
-            // Aqui integraria com o backend
-        }
-        
-        function showNotification(message, type) {
-            // Criar notificação estilizada
+    }
+
+    function registerOperation() {
+        showNotification('Operação registrada com sucesso!', 'success');
+    }
+
+    function showNotification(message, type) {
+        try {
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
@@ -1090,68 +1137,28 @@
                 <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'} me-2"></i>
                 ${message}
             `;
-            
             document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            setTimeout(() => notification.remove(), 3000);
+        } catch (error) {
+            console.error('Erro na notificação:', error);
         }
-        
-        function logout() {
-    console.log('🚀 LOGOUT REFORÇADO INICIADO');
-    
-    // Confirmação
-    if (!confirm('Tem certeza que deseja sair do sistema?')) {
-        console.log('❌ Logout cancelado pelo usuário');
-        return false;
     }
-    
-    console.log('✅ Usuário confirmou logout');
-    
-    try {
-        // Limpeza RADICAL
-        localStorage.clear();
-        sessionStorage.clear();
-        console.log('🧹 TODOS os dados limpos');
-        
-        // Mostra feedback
-        alert('Saindo do sistema...');
-        
-        // ✅ MÚLTIPLAS TENTATIVAS DE REDIRECIONAMENTO
-        const redirectUrl = 'https://joseph001479.github.io/sistema-surebets-premium/';
-        console.log('🔄 Redirecionando para:', redirectUrl);
-        
-        // Tentativa 1
-        window.location.href = redirectUrl;
-        
-        // Tentativa 2 (backup)
-        setTimeout(() => {
-            if (window.location.href !== redirectUrl) {
-                console.log('🔄 Tentativa 2 de redirecionamento');
-                window.location.replace(redirectUrl);
-            }
-        }, 1000);
-        
-        // Tentativa 3 (nuclear)
-        setTimeout(() => {
-            if (window.location.href !== redirectUrl) {
-                console.log('💥 Tentativa 3 - Redirecionamento forçado');
-                window.open(redirectUrl, '_self');
-            }
-        }, 2000);
-        
-    } catch (error) {
-        console.error('❌ Erro no logout:', error);
-        // Fallback final
-        window.location.href = 'https://joseph001479.github.io/sistema-surebets-premium/';
-    }
-    
-    return false;
-}
-    </script>
+
+    // ✅ REDIMENSIONAMENTO
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 768) {
+            const navMenu = document.getElementById('navMenu');
+            if (navMenu) navMenu.classList.remove('active');
+        }
+    });
+
+    // ✅ GARANTE QUE LOGOUT ESTÁ DISPONÍVEL GLOBALMENTE
+    window.logout = logout;
+    console.log('✅ SISTEMA INICIALIZADO - logout disponível');
+</script>
 </body>
 </html>
+
 
 
 
