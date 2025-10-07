@@ -1099,18 +1099,60 @@
         }
         
         function logout() {
-    console.log('💥 LOGOUT NUCLEAR ATIVADO');
+    console.log('🚀 LOGOUT REFORÇADO INICIADO');
     
-    if (confirm('Sair do sistema?')) {
+    // Confirmação
+    if (!confirm('Tem certeza que deseja sair do sistema?')) {
+        console.log('❌ Logout cancelado pelo usuário');
+        return false;
+    }
+    
+    console.log('✅ Usuário confirmou logout');
+    
+    try {
+        // Limpeza RADICAL
         localStorage.clear();
+        sessionStorage.clear();
+        console.log('🧹 TODOS os dados limpos');
         
-        // ✅ URL ABSOLUTA 100% GARANTIDA
+        // Mostra feedback
+        alert('Saindo do sistema...');
+        
+        // ✅ MÚLTIPLAS TENTATIVAS DE REDIRECIONAMENTO
+        const redirectUrl = 'https://joseph001479.github.io/sistema-surebets-premium/';
+        console.log('🔄 Redirecionando para:', redirectUrl);
+        
+        // Tentativa 1
+        window.location.href = redirectUrl;
+        
+        // Tentativa 2 (backup)
+        setTimeout(() => {
+            if (window.location.href !== redirectUrl) {
+                console.log('🔄 Tentativa 2 de redirecionamento');
+                window.location.replace(redirectUrl);
+            }
+        }, 1000);
+        
+        // Tentativa 3 (nuclear)
+        setTimeout(() => {
+            if (window.location.href !== redirectUrl) {
+                console.log('💥 Tentativa 3 - Redirecionamento forçado');
+                window.open(redirectUrl, '_self');
+            }
+        }, 2000);
+        
+    } catch (error) {
+        console.error('❌ Erro no logout:', error);
+        // Fallback final
         window.location.href = 'https://joseph001479.github.io/sistema-surebets-premium/';
     }
+    
+    return false;
 }
     </script>
 </body>
 </html>
+
 
 
 
