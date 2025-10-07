@@ -1099,32 +1099,35 @@
         }
         
         function logout() {
-    console.log('🚪 Iniciando logout...');
+    console.log('🚪 Logout iniciado...');
+    console.log('📍 Localização atual:', window.location.pathname);
     
     if (confirm('Tem certeza que deseja sair do sistema?')) {
-        // Limpa todos os dados
-        localStorage.removeItem('surebet_token');
-        localStorage.removeItem('user_data');
-        localStorage.removeItem('user_profile');
+        // Limpeza COMPLETA para garantir
+        localStorage.clear();
+        sessionStorage.clear();
         
-        // Feedback
-        alert('Logout realizado com sucesso!');
+        console.log('✅ Todos os dados de sessão limpos');
         
-        // Redireciona
-        window.location.href = 'index.html';
-            }
-        }
-    
-        // Redimensionamento responsivo
-        window.addEventListener('resize', function() {
-            // Re-inicializar gráficos se necessário
-            if (window.innerWidth >= 768) {
-                document.getElementById('navMenu').classList.remove('active');
-            }
-        });
+        // ✅ CAMINHO CORRETO: ../ sobe para a raiz
+        const loginPage = '../index.html';
+        console.log('🔄 Redirecionando para:', loginPage);
+        
+        // Feedback visual
+        alert('Saindo do sistema...');
+        
+        // Redirecionamento
+        setTimeout(() => {
+            window.location.href = loginPage;
+        }, 800);
+    } else {
+        console.log('❌ Logout cancelado pelo usuário');
+    }
+}
     </script>
 </body>
 </html>
+
 
 
 
